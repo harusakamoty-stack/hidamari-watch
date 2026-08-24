@@ -3392,6 +3392,13 @@ function renderStats(){
   const scopeLabel = drillPref ? `${drillPref}内の市町村` : "47都道府県";
   const noun = drillPref ? "市町村" : "都道府県";
 
+  // 通知登録中の地域は、今見ている範囲(全国/ドリルダウン中の都道府県)と関係なく
+  // 常に自分自身のデータで計算する(他の地域を見ていても登録地域の状況が分かるように)。
+  const notifyRegionObj = notifyRegionKey ? regionFromKey(notifyRegionKey) : null;
+  const notifyVal = notifyRegionObj ? metricValue(computeNow(notifyRegionObj)) : null;
+  const notifyTier = notifyRegionObj ? tierFor(notifyVal, metric.thresholds) : null;
+  const notifyBell = !notifyRegionKey ? "" : (notifyEnabled && notifyPermission==="granted") ? "🔔" : "🔕";
+
   const stats = document.getElementById("stats");
   stats.innerHTML = `
     <div class="stat-card">
@@ -3413,6 +3420,13 @@ function renderStats(){
       <div class="label">現在の車設定</div>
       <div class="value" style="font-size:18px;">${color.name}</div>
       <div class="sub">${CAR_TYPES.find(t=>t.id===state.typeId).name} / ${WEATHERS.find(w=>w.id===state.weatherId).name}</div>
+    </div>
+    <div class="stat-card ${notifyTier==="danger"?"danger":notifyTier==="warning"?"warn":""}">
+      <div class="label">登録した地域${notifyBell ? " "+notifyBell : ""}</div>
+      <div class="value" style="font-size:18px;">${notifyRegionKey ? (notifyRegionName || notifyRegionObj.name) : "未登録"}</div>
+      <div class="sub">${notifyRegionObj
+        ? `${metric.name} ${fmt1(notifyVal)}℃ 相当 ・ ${TIER_META[notifyTier].label}`
+        : `地域を選んで「この地域を登録」を押すと表示されます`}</div>
     </div>
   `;
   return rows;
@@ -3663,6 +3677,8 @@ function requestBrowserNotifyPermission(onDone){
     onDone(notifyPermission);
   }
 }
+// これらは登録状態を変えるたびに、詳細パネルだけでなく上部の統計カード(「登録した地域」)
+// やタイル・表も含めて全体を更新する必要があるため、renderDetail()単体ではなくupdateAll()を呼ぶ。
 function registerNotifyRegion(region){
   notifyRegionKey = region.key;
   notifyRegionName = region.key.indexOf("::") >= 0 ? region.key.split("::")[0]+" "+region.name : region.name;
@@ -3670,25 +3686,25 @@ function registerNotifyRegion(region){
   lastTierByRegion[region.key] = tierFor(metricValue(computeNow(region)), currentMetric().thresholds);
   if (typeof Notification === "undefined"){
     saveSettings();
-    renderDetail();
+    updateAll();
     alert("このブラウザは通知には対応していません(iPhoneのSafari等、タブを開いただけの状態では通知APIが使えないブラウザがあります)。地域の登録自体は完了したので、この画面を開いていれば「危険」域になった際に案内が表示されます。");
     return;
   }
   if (notifyPermission === "granted"){
     notifyEnabled = true;
     saveSettings();
-    renderDetail();
+    updateAll();
   } else if (notifyPermission === "denied"){
     notifyEnabled = false;
     saveSettings();
-    renderDetail();
+    updateAll();
   } else {
     saveSettings();
-    renderDetail(); // 許可待ちの間もいったん「登録済み」の見た目にしておく
+    updateAll(); // 許可待ちの間もいったん「登録済み」の見た目にしておく
     requestBrowserNotifyPermission(p=>{
       notifyEnabled = (p === "granted");
       saveSettings();
-      renderDetail();
+      updateAll();
     });
   }
 }
@@ -3697,29 +3713,29 @@ function unregisterNotifyRegion(){
   notifyRegionName = null;
   notifyEnabled = false;
   saveSettings();
-  renderDetail();
+  updateAll();
 }
 function onNotifyToggle(checked){
   if (!checked){
     notifyEnabled = false;
     saveSettings();
-    renderDetail();
+    updateAll();
     return;
   }
   if (notifyPermission === "granted"){
     notifyEnabled = true;
     saveSettings();
-    renderDetail();
+    updateAll();
     return;
   }
   if (notifyPermission === "denied"){
-    renderDetail(); // 許可がブロックされているので、トグルはOFFのまま・状態欄でブロックを案内する
+    updateAll(); // 許可がブロックされているので、トグルはOFFのまま・状態欄でブロックを案内する
     return;
   }
   requestBrowserNotifyPermission(p=>{
     notifyEnabled = (p === "granted");
     saveSettings();
-    renderDetail();
+    updateAll();
   });
 }
 // この地域の詳細パネル内、通知の登録/解除UIを描く。「今見ている地域」と「登録済みの地域」が
