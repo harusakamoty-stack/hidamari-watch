@@ -3388,7 +3388,6 @@ function renderStats(){
   const rows = regions.map(region=>({region, r:computeNow(region)}));
   const metric = currentMetric();
   const avg = rows.reduce((s,x)=>s+metricValue(x.r),0)/rows.length;
-  const hottest = rows.reduce((a,b)=> metricValue(b.r)>metricValue(a.r) ? b:a);
   const dangerCount = rows.filter(x=> tierFor(metricValue(x.r), metric.thresholds)==="danger").length;
   const color = CAR_COLORS.find(c=>c.id===state.colorId);
   const scopeLabel = drillPref ? `${drillPref}内の市町村` : "47都道府県";
@@ -3407,11 +3406,6 @@ function renderStats(){
       <div class="label">${drillPref || "全国"} ${metric.name}推定の平均</div>
       <div class="value">${fmt1(avg)}℃</div>
       <div class="sub">${scopeLabel}の単純平均</div>
-    </div>
-    <div class="stat-card ${tierFor(metricValue(hottest.r), metric.thresholds)==="danger"?"danger":"warn"}">
-      <div class="label">最も高い見込み</div>
-      <div class="value">${hottest.region.name}</div>
-      <div class="sub">${metric.name} ${fmt1(metricValue(hottest.r))}℃ 相当</div>
     </div>
     <div class="stat-card ${dangerCount>0?"danger":""}">
       <div class="label">危険域(${metric.thresholds[2]}℃〜)の${noun}数</div>
