@@ -258,7 +258,8 @@ table.pref-table tbody tr:hover{background:var(--panel-2);}
 .bar-fill{position:absolute; left:0; top:0; bottom:0; border-radius:5px 3px 3px 5px;}
 .bar-row-value{font-family:var(--font-mono); font-size:12.5px; text-align:right;}
 .bar-row.selected .bar-row-name{color:var(--text); font-weight:700;}
-.notify-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+.notify-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:14px;}
+.notify-row .forecast-note{width:100%; margin-top:0;}
 .btn{font-weight:700; font-size:14px; color:#1a0f08; background:linear-gradient(135deg,var(--sun),var(--ember)); border:none; border-radius:9px; padding:10px 15px; cursor:pointer; min-height:40px;}
 .btn:hover{opacity:0.88;}
 .btn.ghost{background:transparent; color:var(--text-dim); border:1px solid var(--line);}
@@ -458,6 +459,7 @@ footer{text-align:center; padding:26px 20px 6px; color:var(--text-faint); font-s
     <div class="map-scroll">
       <div class="map-grid" id="mapGrid"></div>
     </div>
+    <div class="notify-row" id="notifyRow"></div>
     <div class="scroll-hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h16M15 6l6 6-6 6"/></svg>横にスクロールして全て表示</div>
     <button class="table-toggle" id="prefTableToggle" type="button">全47都道府県を表で見る ▾</button>
     <div class="pref-table-wrap" id="prefTableWrap">
@@ -3591,11 +3593,9 @@ function renderDetail(){
           <div class="detail-sub-title">🎨 同じ状況で色が違うと?</div>
           <div id="compareRows"></div>
         </div>
-        <div class="notify-row" id="notifyRow"></div>
       </div>
     </div>
   `;
-  renderNotifyRow(region);
   renderForecastFor(region);
   renderComparisonFor(region);
 }
@@ -3743,6 +3743,13 @@ function onNotifyToggle(checked){
 function renderNotifyRow(region){
   const row = document.getElementById("notifyRow");
   if (!row) return;
+  if (!region){
+    // まだ何も選んでいない状態。既に別の地域を登録済みならその旨を、そうでなければ手順を案内する。
+    row.innerHTML = notifyRegionKey
+      ? `<div class="forecast-note">現在「${notifyRegionName || notifyRegionKey}」を登録中です。${drillPref ? "市町村タイル" : "都道府県タイル"}をタップして地域を選ぶと、登録の切り替えができます。</div>`
+      : `<div class="forecast-note">${drillPref ? "市町村タイルをタップして地域を選ぶ" : "都道府県タイルをタップして市町村を選ぶ"}と、この地域を登録して「危険」域を通知できるようになります。</div>`;
+    return;
+  }
   const isThisRegistered = notifyRegionKey === region.key;
   if (!isThisRegistered){
     const note = notifyRegionKey
@@ -3782,6 +3789,7 @@ function selectRegion(region){
   // itself fire a toast — only a further rise while it stays selected does
   lastTierByRegion[region.key] = tierFor(metricValue(computeNow(region)), currentMetric().thresholds);
   renderDetail();
+  renderNotifyRow(region); // 地図タイル直下の「この地域を登録」欄をこの地域向けに更新
   renderTilesAndTable(lastRows);
   document.getElementById("detail").scrollIntoView({behavior:"smooth", block:"nearest"});
   saveSettings();
@@ -4087,6 +4095,7 @@ function updateAll(){
   renderTilesAndTable(lastRows);
   checkAlerts();
   renderDetail(); // selectedRegionがnullなら内部で空状態の案内文に戻す
+  renderNotifyRow(selectedRegion); // 地図タイル直下の「この地域を登録」欄(選択がなければ案内文)
 }
 
 /* ===================== SHARE / QR ===================== */
