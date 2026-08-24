@@ -1,3 +1,11 @@
+<!--
+  炎天チェッカー
+  © 2026 はーさんチャンネル All Rights Reserved.
+  本アプリケーションの著作権その他一切の権利は、制作者である「はーさんチャンネル」に帰属します。
+  本アプリを無断でダウンロード・複製し、改変の有無を問わず有償・無償で第三者へ販売、譲渡、再配布する行為を固く禁じます。
+  違反が確認された場合、著作権法その他関連法令に基づき法的措置を講じることがあります。
+  制作・運営：はーさんチャンネル（YouTube） https://youtube.com/@haaasan-alfaromeo?si=i6byLLbStDUjleU_
+-->
 <meta charset="utf-8">
 <title>炎天チェッカー</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -331,7 +339,11 @@ table.pref-table tbody tr:hover{background:var(--panel-2);}
   .share-link{width:100%; text-align:center;}
 }
 
-footer{text-align:center; padding:26px 20px 6px; color:var(--text-faint); font-size:12px; font-family:var(--font-mono);}
+footer{text-align:center; padding:26px 20px 18px; color:var(--text-faint); font-size:12px; font-family:var(--font-mono);}
+footer .legal-notice{max-width:640px; margin:10px auto 0; font-size:10.5px; line-height:1.8; color:var(--text-faint); opacity:0.85;}
+footer .legal-notice.credit{margin-top:6px; opacity:1;}
+footer .legal-notice a{color:var(--sun-ink); text-decoration:underline; text-decoration-color:var(--line); word-break:break-all;}
+footer .legal-notice a:hover{text-decoration-color:var(--sun-ink);}
 
 /* ---------- TOASTS ---------- */
 #toastWrap{position:fixed; top:14px; right:14px; z-index:999; display:flex; flex-direction:column; gap:8px; max-width:320px;}
@@ -536,7 +548,12 @@ footer{text-align:center; padding:26px 20px 6px; color:var(--text-faint); font-s
 
 </div>
 
-<footer>炎天チェッカー — プロトタイプ ／ 実測データではありません</footer>
+<footer>
+  炎天チェッカー — プロトタイプ ／ 実測データではありません
+  <p class="legal-notice">© 2026 はーさんチャンネル All Rights Reserved.<br>
+  本アプリケーションの著作権その他一切の権利は、制作者である「はーさんチャンネル」に帰属します。本アプリを無断でダウンロード・複製し、改変の有無を問わず有償・無償で第三者へ販売、譲渡、再配布する行為は固く禁じます。違反が確認された場合、著作権法その他関連法令に基づき法的措置を講じることがあります。</p>
+  <p class="legal-notice credit">制作・運営：<a href="https://youtube.com/@haaasan-alfaromeo?si=i6byLLbStDUjleU_" target="_blank" rel="noopener">はーさんチャンネル（YouTube）</a></p>
+</footer>
 
 <script>
 /* qrcode.js -- QR Code Generator for JavaScript (MIT License, (c) 2009 Kazuhiko Arase) -- embedded for offline/self-contained use */
