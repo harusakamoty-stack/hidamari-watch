@@ -51,6 +51,14 @@
   --r-75:#ff8a3d;
   --r-100:#ff2f5e;
 
+  /* 暑さ指数(WBGT)専用の5段階配色。天気予報等で見慣れた「青→緑→黄→橙→赤」の
+     配色に合わせ、車体の熱リスク(上のr-0〜r-100、オレンジ〜赤系)とは視覚的に区別する。 */
+  --wbgt-0:#5aa9e6;
+  --wbgt-1:#3ddc97;
+  --wbgt-2:#ffd23d;
+  --wbgt-3:#ff8a3d;
+  --wbgt-4:#ff3d3d;
+
   --radius:14px;
   --font-display:"Zen Kaku Gothic New","Hiragino Sans","Noto Sans JP",sans-serif;
   --font-body:"IBM Plex Sans JP","Hiragino Sans","Noto Sans JP",sans-serif;
@@ -91,6 +99,12 @@
   --r-50:#714e04;
   --r-75:#c91f0b;
   --r-100:#6e003b;
+
+  --wbgt-0:#0f5f9c;
+  --wbgt-1:#0f7a52;
+  --wbgt-2:#8a6a00;
+  --wbgt-3:#c2530a;
+  --wbgt-4:#b3121f;
 }
 *{box-sizing:border-box; margin:0; padding:0;}
 html,body{background:var(--bg); color:var(--text);}
@@ -264,6 +278,19 @@ table.pref-table tbody tr:hover{background:var(--panel-2);}
 .factor .ic{font-size:14.5px;}
 .advice{font-size:14px; line-height:1.8; color:var(--text-dim); background:var(--bg-1); border:1px solid var(--line-soft); border-left:3px solid var(--sun); padding:13px 15px; border-radius:0 10px 10px 0;}
 .advice b{color:var(--sun-ink); font-weight:700;}
+
+.wbgt-block{margin-top:10px; padding:12px 15px; border-radius:10px; background:var(--bg-1); border:1px solid var(--line-soft);}
+.wbgt-head{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
+.wbgt-head .lbl{font-size:13px; color:var(--text-dim); font-weight:600;}
+.wbgt-head .val{font-family:var(--font-num); font-weight:800; font-size:22px; font-variant-numeric:tabular-nums;}
+.wbgt-head .wpill{font-family:var(--font-mono); font-weight:800; font-size:12.5px; padding:3px 10px; border-radius:100px; white-space:nowrap;}
+.wbgt-note{margin-top:7px; font-size:12px; line-height:1.7; color:var(--text-faint);}
+.wbgt-note a{color:var(--sun-ink); text-decoration:underline; text-decoration-color:var(--line);}
+.wbgt-note b{color:var(--text-dim);}
+
+.criteria-note{font-size:11.5px; color:var(--text-faint); margin-top:8px; line-height:1.6;}
+.criteria-note a{color:var(--text-faint); text-decoration:underline; text-decoration-color:var(--line-soft); cursor:pointer;}
+.criteria-note a:hover{color:var(--sun-ink); text-decoration-color:var(--sun-ink);}
 .detail-empty{grid-column:1/-1; display:flex; align-items:center; justify-content:center; padding:20px; color:var(--text-faint); font-size:14px; line-height:1.7; text-align:center; background:var(--bg-1); border:1px solid var(--line-soft); border-radius:14px;}
 .detail-empty b{color:var(--text);}
 .detail-extra{grid-column:1/-1; margin-top:6px; display:none; flex-direction:column; gap:18px;}
@@ -309,7 +336,9 @@ table.pref-table tbody tr:hover{background:var(--panel-2);}
 .disclaimer{font-size:12.5px; line-height:1.85; color:var(--text-dim); border-top:1px solid var(--line-soft); padding-top:14px; margin-top:16px;}
 .disclaimer b{color:var(--sun-ink); font-weight:700;}
 .sources{margin-top:9px; display:flex; flex-wrap:wrap; gap:7px;}
-.sources span{font-family:var(--font-mono); font-size:11px; color:var(--text-faint); border:1px solid var(--line-soft); padding:3px 8px; border-radius:6px;}
+.sources span, .sources a{font-family:var(--font-mono); font-size:11px; color:var(--text-faint); border:1px solid var(--line-soft); padding:3px 8px; border-radius:6px;}
+.sources a{text-decoration:none;}
+.sources a:hover{color:var(--sun-ink); border-color:var(--sun-ink);}
 
 /* ---------- USAGE GUIDE ---------- */
 .collapse-wrap{display:none; margin-top:12px;}
@@ -344,6 +373,10 @@ footer .legal-notice{max-width:640px; margin:10px auto 0; font-size:10.5px; line
 footer .legal-notice.credit{margin-top:6px; opacity:1;}
 footer .legal-notice a{color:var(--sun-ink); text-decoration:underline; text-decoration-color:var(--line); word-break:break-all;}
 footer .legal-notice a:hover{text-decoration-color:var(--sun-ink);}
+footer .legal-terms{max-width:640px; margin:14px auto 0; padding-top:12px; border-top:1px solid var(--line-soft); text-align:left;}
+footer .legal-terms-title{font-size:12px; font-weight:700; color:var(--text-dim); letter-spacing:0.05em; margin-bottom:8px; text-align:center;}
+footer .legal-terms p{margin-top:8px;}
+footer .legal-terms p:first-of-type{margin-top:0;}
 
 /* ---------- TOASTS ---------- */
 #toastWrap{position:fixed; top:14px; right:14px; z-index:999; display:flex; flex-direction:column; gap:8px; max-width:320px;}
@@ -413,9 +446,10 @@ footer .legal-notice a:hover{text-decoration-color:var(--sun-ink);}
     <button class="table-toggle" id="guideToggle" type="button">使い方を見る ▾</button>
     <div class="collapse-wrap" id="guideBody">
       <ol class="guide-steps">
-        <li><b>車体の色・車種・天候・想定する時刻</b>を選びます。地図やグラフはこの設定にすぐ反映されます。気温・日射量・雲量・風速はページを開いた時点でライブ取得した値が初期状態として使われます。</li>
+        <li><b>車体の色・車種・天候・何時間後を予測</b>を選びます。「何時間後を予測」は現在時刻から1〜12時間先までをスライドして、その時点の予報(ライブ取得した先読みデータ)に基づく見込みを確認できるバーです。地図やグラフはこの設定にすぐ反映されます。気温・日射量・雲量・風速はページを開いた時点でライブ取得した値が初期状態として使われます。</li>
         <li><b>全国ヒートマップ</b>の都道府県タイルをタップすると、その都道府県内の市町村タイルに切り替わります。市町村タイル(または「表で見る」の行)をさらにタップすると、その地域の詳細な推定が下に表示されます。「← 全国に戻る」でいつでも全国表示に戻れます。</li>
-        <li>詳細パネルの円形ゲージと5段階の色(✓安全 〜 ⛔危険)で、選んだ条件でのリスクの高さが一目でわかります。「ヒートマップ・統計の表示」で車内/車外ボディの切り替えも可能です。</li>
+        <li>詳細パネルの円形ゲージと5段階の色(✓安全 〜 ⛔危険)で、選んだ条件でのリスクの高さが一目でわかります。「ヒートマップ・統計の表示」で車内/車外ボディの切り替えも可能です。判定の直下には「推定◯℃が『危険』の基準(◯℃以上)に該当」のように、その判定になった具体的な根拠(推定温度と基準値)を必ず表示しています。ヒートマップの凡例下にある「「注意」「危険」の判定基準について」からも、基準の出典を確認できます。</li>
+        <li><b>暑さ指数(WBGT)</b>は、車体の温度とは別に、環境省・気象庁が熱中症警戒アラート等で用いている公式の熱中症リスク指標を、同じ気象データから推定して5段階(ほぼ安全〜危険)で表示しています。車内・車外の推定温度が低めでも、暑さ指数が「警戒」以上のときは屋外での熱中症に注意してください。</li>
         <li><b>これからの見通し(8時間)</b>グラフでは、この先の気温・車外ボディ・車内温度の推移と、警戒域に達しそうなタイミングが確認できます。グラフ上をなぞるとその時点の数値が見られます。</li>
         <li>「詳細設定」を開くと、風速・サンシェード使用・今まさに駐車したか・窓を少し開けているか、といった条件も細かく調整できます。「気温補正」は平年値や予報からの上下を仮に動かして試すためのスライダーです。</li>
         <li>気象データはページを開いた時に自動で最新の予報を取得します。しばらく開いたままにしていた場合は、ヘッダーの「🔄 気象データを再取得」で更新してください。取得に失敗した場合は待機中の目安値で表示を継続します。</li>
@@ -445,8 +479,8 @@ footer .legal-notice a:hover{text-decoration-color:var(--sun-ink);}
       <div class="seg" id="weatherSeg"></div>
     </div>
     <div class="slider-row">
-      <div class="controls-label"><span>想定する時刻</span><span id="timeLabel"></span></div>
-      <input type="range" id="timeSlider" min="5" max="19" step="0.25" value="13" aria-label="想定する時刻">
+      <div class="controls-label"><span>何時間後を予測</span><span id="timeLabel"></span></div>
+      <input type="range" id="timeSlider" min="1" max="12" step="0.5" value="1" aria-label="何時間後を予測するか(1〜12時間後)">
     </div>
     <div class="slider-row">
       <div class="controls-label"><span>気温補正(予報値からの上下)</span><span id="adjLabel"></span></div>
@@ -483,7 +517,10 @@ footer .legal-notice a:hover{text-decoration-color:var(--sun-ink);}
         <p id="mapDesc">都道府県タイルをタップすると、その都道府県内の市町村ヒートマップに切り替わります</p>
         <div class="danger-badge" id="dangerBadge"></div>
       </div>
-      <div><div class="legend"><span>低</span><div class="bar"></div><span>高</span></div></div>
+      <div>
+        <div class="legend"><span>低</span><div class="bar"></div><span>高</span></div>
+        <div class="criteria-note"><a href="#method">「注意」「危険」の判定基準について ›</a></div>
+      </div>
     </div>
     <button class="back-btn" id="backToNationalBtn" type="button" style="display:none;">← 全国に戻る</button>
     <div class="forecast-note" id="muniFetchNote" style="display:none;"></div>
@@ -505,7 +542,7 @@ footer .legal-notice a:hover{text-decoration-color:var(--sun-ink);}
     <div class="detail-empty"><p><b>都道府県のタイル</b>をタップして市町村を表示し、その中から選ぶと、ここに車外・車内の推定温度とこれからの見通しが表示されます。</p></div>
   </div>
 
-  <div class="method">
+  <div class="method" id="method">
     <h2>🔎 算出方法について</h2>
     <div class="scale-guide">
       <h3>色の見方(5段階)</h3>
@@ -517,14 +554,17 @@ footer .legal-notice a:hover{text-decoration-color:var(--sun-ink);}
       <p><b style="color:var(--text)">車外ボディ表面温度</b>は、①太陽から吸収する熱、②風による対流で逃げる熱、③赤外線として空へ放出される熱(放射冷却)、の3つがつり合う温度を二分法で解く熱収支モデルに基づいています。気温・日射量・雲量・風速(体感の初期値)はOpen-Meteoから取得した都道府県ごとの時間帯別ライブ値を優先的に使い、取得できない場合や「天候」「風速」を手動で操作した後はそれぞれ緯度・時刻からの近似式・手動設定を使用します。風が強いほど対流による放熱が増え、雲が多いほど放射冷却が弱まるため、同じ気温でも表面温度は変わります。</p>
       <p><b style="color:var(--text)">車内温度</b>は、ガラスから入る日射による温室効果と、ボディの熱伝導による寄与を合わせた平衡温度に、車種ごとの時定数で指数関数的に近づくモデルです。</p>
       <p><b style="color:var(--text)">色による違い</b>は、米ローレンス・バークレー国立研究所などの研究(白系は日射の約6割を反射)や、シルバー車と黒色車で車内温度に約5〜6℃の差が生じたという実測例を参考に、色ごとの日射吸収率を設定しています。</p>
-      <p><b style="color:var(--text)">危険域の目安</b>(車内60℃〜)は、駐車車両内の温度が外気温の約1.8倍に達し、ダッシュボードが70℃を超えるという複数の実測研究を参考にしています。</p>
+      <p><b style="color:var(--text)">「注意」「警戒」「危険」の判定基準(車内35/45/60℃、車外ボディ50/65/80℃)</b>は、公式の統一基準があるわけではなく、本アプリが独自に設定した目安です。JAFが2012年8月に実施した実測テスト(気温35℃・晴天下、黒色車を4時間放置)で車内温度が平均51℃・最高57℃、ダッシュボード表面温度が最高79℃に達したという結果、および国民生活センター等が公表している「窓を閉めた車内は短時間でも高温になり、乳幼児の熱中症死亡事故が繰り返し起きている」という注意喚起を参考に、実測値と大きく矛盾しない範囲で保守的(危険を見落とさない方向)に設定しています。個々のタイルで「危険」と表示された場合は、車内・車外ボディそれぞれの推定温度がその基準値を超えたことが直接の根拠です(詳細パネルの推定値と、下の5段階の対応する数値をご確認ください)。</p>
+      <p><b style="color:var(--text)">暑さ指数(WBGT)</b>は、上記の車体温度とは別に、環境省・気象庁が「熱中症警戒アラート」等で用いている公式の熱中症リスク指標です。気温・相対湿度・日射量・風速から暑さ指数を推定する小野ほか(2014)の式(環境省の暑さ指数予測値サイトも同じ式を採用)で算出し、環境省の基準(ほぼ安全21未満／注意21〜25／警戒25〜28／厳重警戒28〜31／危険31以上)に沿って5段階表示しています。相対湿度がライブ取得できない場合は、選択した「天候」に応じた目安値(晴天55%・薄曇り65%・曇り75%)で近似しているため、実測のWBGTとは差が生じることがあります。車内・車外の温度が「安全」域でも、暑さ指数が「警戒」以上の場合は屋外での熱中症リスクが高いことを示しますので、あわせてご確認ください。</p>
       <p>あわせて、Open-Meteoが提供する<b style="color:var(--text)">UV指数</b>(世界保健機関のグローバル紫外線指数に基づく実測ベースの指数)を、都道府県を選んだ際の参考情報として表示しています。UVは熱によるダメージとは別に、主に塗装・樹脂パーツの色あせ・劣化に関わる指標です。</p>
     </div>
     <div class="disclaimer">
-      <b>ご利用にあたって：</b>このファイルは<b>ブラウザがページを開いたその場でOpen-Meteo(気象庁GSM・MSMモデルを含む複数の気象モデルを配信するオープンAPI)に直接アクセスし、都道府県代表地点の時間帯別(1時間ごと・最大48時間先まで)の気温・日射量・雲量・風速・UV指数を取得</b>します。サーバーを経由せず、あなたの端末から気象データ取得→熱収支モデルによる車体温度推定までがブラウザの中だけで完結します。ヘッダーの「🔄 気象データを再取得」でいつでも最新の予報に更新できます。通信環境やAPI側の状況によっては取得に失敗することがあり、その場合は待機中の目安値(平年値に近い値)で表示を継続します。太陽位置は緯度・時刻からの近似計算で、経度補正や大気減衰は簡略化しています。窓を数cm開ける対策も効果は限定的とされており、過信せず短時間でも人やペットを車内に残さないことが重要です。数値はすべて目安としてご利用ください。
+      <b>ご利用にあたって：</b>このファイルは<b>ブラウザがページを開いたその場でOpen-Meteo(気象庁GSM・MSMモデルを含む複数の気象モデルを配信するオープンAPI)に直接アクセスし、都道府県代表地点の時間帯別(1時間ごと・最大48時間先まで)の気温・相対湿度・日射量・雲量・風速・UV指数を取得</b>します。サーバーを経由せず、あなたの端末から気象データ取得→熱収支モデルによる車体温度推定・暑さ指数推定までがブラウザの中だけで完結します。ヘッダーの「🔄 気象データを再取得」でいつでも最新の予報に更新できます。通信環境やAPI側の状況によっては取得に失敗することがあり、その場合は待機中の目安値(平年値に近い値)で表示を継続します。太陽位置は緯度・時刻からの近似計算で、経度補正や大気減衰は簡略化しています。窓を数cm開ける対策も効果は限定的とされており、過信せず短時間でも人やペットを車内に残さないことが重要です。<b>本アプリの数値・判定はすべて目安であり、公式の熱中症警戒アラート等に置き換わるものではありません。</b>実際の熱中症予防・車内放置事故防止については、環境省・JAF等の公式情報も必ずご確認ください。
       <div class="sources">
         <span>Lawrence Berkeley National Laboratory: Cool Colors for Cars</span>
-        <span>駐車車両の車内温度に関する実測研究(複数)</span>
+        <a href="https://jaf.or.jp/common/safety-drive/car-learning/user-test/temperature/summer" target="_blank" rel="noopener">JAFユーザーテスト「真夏の車内温度」</a>
+        <a href="https://www.wbgt.env.go.jp/wbgt.php" target="_blank" rel="noopener">環境省熱中症予防情報サイト「暑さ指数(WBGT)について」</a>
+        <span>小野ら(2014)日生気誌50(4):147-157「通常観測気象要素を用いたWBGTの推定」</span>
         <span>Open-Meteo API — api.open-meteo.com(気象庁 GSM・MSMモデルを含む、CORS対応・ブラウザから直接取得可能な気象データAPI)</span>
         <span>Open-Meteo(UV指数 / WHO Global UV Index相当)</span>
       </div>
@@ -549,9 +589,14 @@ footer .legal-notice a:hover{text-decoration-color:var(--sun-ink);}
 </div>
 
 <footer>
-  炎天チェッカー — プロトタイプ ／ 実測データではありません
-  <p class="legal-notice">© 2026 はーさんチャンネル All Rights Reserved.<br>
-  本アプリケーションの著作権その他一切の権利は、制作者である「はーさんチャンネル」に帰属します。本アプリを無断でダウンロード・複製し、改変の有無を問わず有償・無償で第三者へ販売、譲渡、再配布する行為は固く禁じます。違反が確認された場合、著作権法その他関連法令に基づき法的措置を講じることがあります。</p>
+  炎天チェッカー ／ 表示される数値はすべて推定の目安であり、実測データではありません
+  <div class="legal-terms">
+    <div class="legal-terms-title">利用規約</div>
+    <p class="legal-notice">© 2026 はーさんチャンネル All Rights Reserved.<br>
+    本アプリケーションの著作権その他一切の権利は、制作者である「はーさんチャンネル」に帰属します。本アプリを無断でダウンロード・複製し、改変の有無を問わず有償・無償で第三者へ販売、譲渡、再配布する行為は固く禁じます。違反が確認された場合、著作権法その他関連法令に基づき法的措置を講じることがあります。</p>
+    <p class="legal-notice">本アプリが表示する温度・暑さ指数(WBGT)・「注意」「危険」等の判定は、公開されている気象データと簡易的な物理モデルに基づく推定値・目安であり、実測値および環境省・気象庁が発表する公式の熱中症警戒アラート等に代わるものではありません。利用者は、本アプリの数値・判定を鵜呑みにせず、ご自身の判断と責任のもとでご利用ください。本アプリの利用または利用不能により生じた損害(熱中症等の身体的被害、車両・積載物の損傷、その他一切の直接的・間接的な損害を含みますが、これらに限りません)について、制作者「はーさんチャンネル」は、法令上許容される最大限の範囲において一切の責任を負いません。</p>
+    <p class="legal-notice">本利用規約の内容は、予告なく変更されることがあります。</p>
+  </div>
   <p class="legal-notice credit">制作・運営：<a href="https://youtube.com/@haaasan-alfaromeo?si=i6byLLbStDUjleU_" target="_blank" rel="noopener">はーさんチャンネル（YouTube）</a></p>
 </footer>
 
@@ -2989,10 +3034,11 @@ const CAR_TYPES = [
   {id:"sedan", name:"セダン・標準",   greenhouse:1.00, tau:16},
   {id:"suv",   name:"SUV・大型",      greenhouse:0.94, tau:20},
 ];
+// rh: 相対湿度(%)のライブ未取得時フォールバック目安(暑さ指数(WBGT)推定に使用)
 const WEATHERS = [
-  {id:"clear",   name:"晴天",   cloud:1.00, cloudPct:10},
-  {id:"partly",  name:"薄曇り", cloud:0.60, cloudPct:50},
-  {id:"overcast",name:"曇り",   cloud:0.28, cloudPct:85},
+  {id:"clear",   name:"晴天",   cloud:1.00, cloudPct:10, rh:55},
+  {id:"partly",  name:"薄曇り", cloud:0.60, cloudPct:50, rh:65},
+  {id:"overcast",name:"曇り",   cloud:0.28, cloudPct:85, rh:75},
 ];
 
 const G_CLEAR_MAX = 950;
@@ -3020,14 +3066,68 @@ const METRICS = [
 function currentMetric(){ return METRICS.find(m=>m.id===state.metric); }
 function metricValue(r){ return state.metric==="interior" ? r.intNow : r.ext; }
 
+/* ===================== 暑さ指数(WBGT / 熱中症警戒アラート) ===================== */
+// 環境省熱中症予防情報サイトが「暑さ指数(WBGT)予測値」の算出に採用している、
+// 小野ら(2014, 日生気誌50(4):147-157)による通常の気象観測要素からのWBGT推定式。
+// Ta:気温(℃) RH:相対湿度(%) srWm2:全天日射量(W/m²、式内でkW/m²に変換) WS:風速(m/s)
+// これは車体の熱収支モデルとは完全に別の、公式の熱中症リスク指標(人の熱中症リスク)。
+function estimateWBGT(Ta, RH, srWm2, WS){
+  const SR = Math.max(0, srWm2)/1000; // kW/m²
+  const rh = Math.max(0, Math.min(100, RH));
+  const ws = Math.max(0, WS);
+  return 0.735*Ta + 0.0374*rh + 0.00292*Ta*rh + 7.619*SR - 4.557*SR*SR - 0.0572*ws - 4.064;
+}
+// 環境省熱中症予防情報サイトの5段階区分(暑さ指数)。境界値はそのまま公式基準を使用。
+const WBGT_LEVELS = [
+  {max:21,       label:"ほぼ安全", short:"安全", colorVar:"var(--wbgt-0)"},
+  {max:25,       label:"注意",     short:"注意", colorVar:"var(--wbgt-1)"},
+  {max:28,       label:"警戒",     short:"警戒", colorVar:"var(--wbgt-2)"},
+  {max:31,       label:"厳重警戒", short:"厳重警戒", colorVar:"var(--wbgt-3)"},
+  {max:Infinity, label:"危険",     short:"危険", colorVar:"var(--wbgt-4)"},
+];
+function wbgtMeta(wbgt){
+  return WBGT_LEVELS.find(l => wbgt < l.max) || WBGT_LEVELS[WBGT_LEVELS.length-1];
+}
+// 詳細パネルに表示する暑さ指数(WBGT)ブロックのHTML。
+// 車内・車外の推定温度が「安全」でも、暑さ指数(人の熱中症リスク)が「警戒」以上のときは
+// 別リスクとして注意を促す(車体が低めでも屋外での熱中症リスクを見落とさないため)。
+function renderWbgtBlock(wbgt){
+  const wm = wbgtMeta(wbgt);
+  const severe = wm.label==="警戒" || wm.label==="厳重警戒" || wm.label==="危険";
+  const extraNote = severe
+    ? `車内・車外の推定温度が低めの場合でも、屋外での作業・待機・荷物の積み下ろし等は熱中症に十分注意してください。`
+    : `熱中症予防の参考にしてください。`;
+  return `
+    <div class="wbgt-block">
+      <div class="wbgt-head">
+        <span class="lbl">🌡 暑さ指数(WBGT・屋外の熱中症リスク)</span>
+        <span class="val" style="color:${wm.colorVar}">${fmt1(wbgt)}</span>
+        <span class="wpill" style="color:${wm.colorVar}; background:color-mix(in srgb, ${wm.colorVar} 20%, transparent);">${wm.label}</span>
+      </div>
+      <div class="wbgt-note">環境省の熱中症警戒基準(<a href="#method">出典・算出方法</a>)による5段階区分です。車体の温度とは別の指標で、${extraNote}</div>
+    </div>
+  `;
+}
+
+// 実際の「今」をタイムゾーンに依存せず常にJST(日本時間)の時刻(0〜24の小数)として取得する。
+// ライブ取得データ(timezone=Asia/Tokyo)の並び(index 0=本日0時JST)と基準を合わせるため、
+// 端末側のタイムゾーン設定に関わらずJSTを使う。
+function nowHourJST(){
+  const jst = new Date(Date.now() + 9*3600000);
+  return jst.getUTCHours() + jst.getUTCMinutes()/60 + jst.getUTCSeconds()/3600;
+}
+
 let state = {
   colorId:"red", typeId:"sedan", weatherId:"clear",
-  timeHour:13, tempAdjust:0, wind:2,
+  timeOffset:1, // 「何時間後を予測」スライダーの値(今から何時間後か、1〜12)
+  timeHour:13, // = nowHourJST() + timeOffset として都度算出する実際の推定対象時刻(24を超えることがある)
+  tempAdjust:0, wind:2,
   justParked:true, sunshade:false, crack:false,
   metric:"interior",
   weatherTouched:false, // becomes true once the user manually picks 天候, so the live-fetch cloud-cover auto-suggestion stops overriding it
   windTouched:false, // becomes true once the user manually moves 風速(体感), so the live-fetch wind auto設定はそれ以降上書きしない
 };
+state.timeHour = nowHourJST() + state.timeOffset;
 let selectedRegion = null; // {key, name, lat, fallback, hourly} 都道府県 or 市町村のどちらかを一意に指す
 let drillPref = null; // ドリルダウン中の都道府県名(nullなら全国47都道府県表示)
 let notifyPermission = (typeof Notification !== "undefined") ? Notification.permission : "unsupported";
@@ -3166,6 +3266,14 @@ function tierFor(v,th){ if(v<th[0])return"safe"; if(v<th[1])return"caution"; if(
 function tierRank(t){ return {safe:0,caution:1,warning:2,danger:3}[t]; }
 function worstTier(a,b){ return tierRank(a)>=tierRank(b)?a:b; }
 function fmtHour(h){ const hh=Math.floor(h), mm=Math.round((h-hh)*60); return String(hh).padStart(2,"0")+":"+String(mm).padStart(2,"0"); }
+// 内部計算用のtimeHourは「今日0時からの連続時刻」で24を超えることがある(例: 23時+5時間後=28時)。
+// 表示用には24で折り返した時計表示にする。
+function fmtClock(h){ return fmtHour(((h%24)+24)%24); }
+// 「何時間後を予測」バーのラベル(例: "3時間後（18:15頃）")
+function fmtOffsetLabel(offset){
+  const offStr = (Math.round(offset*10)/10).toString();
+  return `${offStr}時間後（${fmtClock(state.timeHour)}頃）`;
+}
 function fmt1(v){ return (Math.round(v*10)/10).toFixed(1); }
 
 // region.hourly(hourlyAt/resolveConditionsの入力になる時間帯別ライブデータ、無ければnull)から、
@@ -3187,7 +3295,7 @@ function hourlyAt(hourlyEntry, hourFloat){
   }
   const temp = interp(h.temp);
   if (temp==null) return null;
-  return { temp, solar: interp(h.solar), cloud: interp(h.cloud), uv: interp(h.uv) };
+  return { temp, solar: interp(h.solar), cloud: interp(h.cloud), uv: interp(h.uv), humidity: interp(h.humidity) };
 }
 function resolveConditions(region, hourFloat){
   const doy = dayOfYear(new Date());
@@ -3205,7 +3313,10 @@ function resolveConditions(region, hourFloat){
     G = Math.max(0, live.solar);
     cloudPct = (live.cloud!=null) ? live.cloud : weather.cloudPct;
   }
-  return { ambient, elev, G, cloudPct, uv: live ? live.uv : null };
+  // 暑さ指数(WBGT)推定用の相対湿度。ライブ取得できていて「天候」を手動操作していない間は
+  // ライブ値を優先し、取得不可・手動操作後は選んだ天候に応じた目安値にフォールバックする。
+  const humidity = (!state.weatherTouched && live && live.humidity!=null) ? live.humidity : weather.rh;
+  return { ambient, elev, G, cloudPct, uv: live ? live.uv : null, humidity };
 }
 function uvTier(uv){
   if (uv==null) return "—";
@@ -3220,7 +3331,7 @@ function uvTier(uv){
 function computeNow(region){
   const color = CAR_COLORS.find(c=>c.id===state.colorId);
   const type = CAR_TYPES.find(t=>t.id===state.typeId);
-  const {ambient, elev, G, cloudPct} = resolveConditions(region, state.timeHour);
+  const {ambient, elev, G, cloudPct, humidity} = resolveConditions(region, state.timeHour);
   const ext = surfaceTempBisect(ambient, G, state.wind, color.alpha, cloudPct);
   const dExt = ext - ambient;
   let intEq = ambient + cabinEq(G, type, state.sunshade, dExt);
@@ -3230,7 +3341,8 @@ function computeNow(region){
     const decay = Math.exp(-JUST_PARKED_SETTLE_MIN/type.tau);
     intNow = intEq - (intEq-ambient)*decay;
   }
-  return {ambient, elev, G, ext, intNow, intEq};
+  const wbgt = estimateWBGT(ambient, humidity, G, state.wind);
+  return {ambient, elev, G, ext, intNow, intEq, humidity, wbgt};
 }
 
 // 0-100 score from a temperature + its own tier thresholds [caution,warning,danger],
@@ -3288,6 +3400,14 @@ function adviceFor(tier, name, metricId){
   if(tier==="warning") return `${name}では車内が高温になりやすい見込みです。日陰・屋根付きの駐車を優先し、人やペットを車内に残さないでください。`;
   return `${name}は非常に高温になる見込みです。人やペット・電子機器を車内に残すのは危険です。可能な限り屋根のある場所に駐車してください。`;
 }
+// 「注意」「警戒」「危険」の判定がどの基準値によるものかを1文で明示する。
+// タイルやゲージの表示だけでは根拠が伝わらないため、推定温度と閾値の対応を必ず併記する。
+function tierBasisText(tier, metric, value){
+  const th = metric.thresholds; // [注意,警戒,危険]の境界値
+  if (tier==="safe") return `${metric.name}推定${fmt1(value)}℃は「注意」の基準(${th[0]}℃以上)を下回っており、「安全」域です。`;
+  const idx = tier==="caution" ? 0 : tier==="warning" ? 1 : 2;
+  return `${metric.name}推定${fmt1(value)}℃が「${TIER_META[tier].label}」の基準(${th[idx]}℃以上)に達したため、この判定になっています。`;
+}
 
 /* ===================== TILE GRID ===================== */
 const mapGrid = document.getElementById("mapGrid");
@@ -3333,6 +3453,7 @@ function buildGrid(){
     mapGrid.classList.remove("compact");
     mapGrid.classList.add("muni-grid");
     const list = MUNI_BY_PREF[drillPref] || [];
+    const prefAtBuild = drillPref; // クリック時にmuniRegion()し直すために固定しておく(下のコメント参照)
     list.forEach((m,i)=>{
       const el = document.createElement("div");
       el.className = "tile muni-tile";
@@ -3341,11 +3462,15 @@ function buildGrid(){
       el.tabIndex = 0;
       el.setAttribute("role","button");
       el.setAttribute("aria-label", m[0]);
-      const region = muniRegion(drillPref, m, i);
-      el.onclick = ()=> selectRegion(region);
-      el.onkeydown = e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); selectRegion(region); } };
+      // タイル生成時点ではensureMuniData()のライブ取得がまだ完了しておらずhourlyがnullの
+      // ことが多い。ここでregionオブジェクトを1回だけ作ってクリックハンドラに固定してしまうと、
+      // 後で取得が完了してもクリック時には古い(hourly=nullの)値を使い続けてしまう
+      // (推定温度・暑さ指数などが常にオフラインの目安値になり、危険判定の精度が落ちる)。
+      // そのためクリック・キー操作の瞬間に毎回muniRegion()し直し、今そろっているMUNI_HOURLYを見る。
+      el.onclick = ()=> selectRegion(muniRegion(prefAtBuild, m, i));
+      el.onkeydown = e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); selectRegion(muniRegion(prefAtBuild, m, i)); } };
       mapGrid.appendChild(el);
-      tileEls[region.key] = el;
+      tileEls[(prefAtBuild+"::"+m[0])] = el;
     });
     return true;
   }
@@ -3625,10 +3750,11 @@ function renderDetail(){
         <div class="factor"><span class="ic">🎨</span>${color.name}</div>
         <div class="factor"><span class="ic">🚘</span>${type.name}</div>
         <div class="factor"><span class="ic">☁️</span>${weather.name}</div>
-        <div class="factor"><span class="ic">🕐</span>${fmtHour(state.timeHour)}時点</div>
+        <div class="factor"><span class="ic">🕐</span>${state.timeOffset}時間後・${fmtClock(state.timeHour)}時点</div>
         ${uvChip}
       </div>
-      <div class="advice">${adviceFor(tier, region.name, metric.id)}</div>
+      <div class="advice">${adviceFor(tier, region.name, metric.id)}<br><span style="font-size:12.5px; color:var(--text-faint);">${tierBasisText(tier, metric, metricValue(r))}</span></div>
+      ${renderWbgtBlock(r.wbgt)}
 
       <div class="detail-extra open">
         <div>
@@ -3923,7 +4049,14 @@ buildSeg(document.getElementById("metricSeg"), METRICS, state.metric, id=>{
   saveSettings();
 });
 
-document.getElementById("timeSlider").addEventListener("input", e=>{ state.timeHour=parseFloat(e.target.value); updateAll(); });
+document.getElementById("timeSlider").addEventListener("input", e=>{
+  state.timeOffset = parseFloat(e.target.value);
+  state.timeHour = nowHourJST() + state.timeOffset;
+  updateAll();
+});
+// 「何時間後」の基準となる「今」は時間の経過とともに変わるため、バーを操作していなくても
+// 1分おきに実時刻を反映し直す(表示中の予測がいつまでも同じ時刻を指したままにならないように)。
+setInterval(()=>{ state.timeHour = nowHourJST() + state.timeOffset; updateAll(); }, 60*1000);
 document.getElementById("adjSlider").addEventListener("input", e=>{ state.tempAdjust=parseFloat(e.target.value); updateAll(); });
 document.getElementById("windSlider").addEventListener("input", e=>{ state.wind=parseFloat(e.target.value); state.windTouched=true; updateAll(); });
 document.getElementById("justParkedToggle").addEventListener("change", e=>{ state.justParked=e.target.checked; updateAll(); });
@@ -3997,7 +4130,7 @@ async function fetchLiveWeather(){
   const lons = PREFS.map(p=>p[7]).join(",");
   const url = "https://api.open-meteo.com/v1/forecast"
     + `?latitude=${lats}&longitude=${lons}`
-    + `&hourly=temperature_2m,shortwave_radiation,cloud_cover,wind_speed_10m,uv_index`
+    + `&hourly=temperature_2m,relative_humidity_2m,shortwave_radiation,cloud_cover,wind_speed_10m,uv_index`
     + `&models=jma_seamless&timezone=Asia%2FTokyo&forecast_days=2`;
   try{
     const res = await fetch(url);
@@ -4009,7 +4142,7 @@ async function fetchLiveWeather(){
     }
     let okCount = 0;
     const cloudSamples = [], windSamples = [];
-    const nowIdx = Math.max(0, Math.round(state.timeHour));
+    const nowIdx = Math.max(0, Math.round(nowHourJST())); // 天候・風速の初期提案は「今この瞬間」の値を使う(何時間後を予測するかのバーとは無関係)
     list.forEach((entry, i)=>{
       try{
         const h = entry && entry.hourly;
@@ -4020,6 +4153,7 @@ async function fetchLiveWeather(){
             solar: h.shortwave_radiation || null,
             cloud: h.cloud_cover || null,
             uv: h.uv_index || null,
+            humidity: h.relative_humidity_2m || null, // 暑さ指数(WBGT)推定に使用
           };
           okCount++;
           const idxNow = Math.min(temp.length-1, nowIdx);
@@ -4096,7 +4230,7 @@ async function ensureMuniData(prefName, force){
   const lons = list.map(m=>m[2]).join(",");
   const url = "https://api.open-meteo.com/v1/forecast"
     + `?latitude=${lats}&longitude=${lons}`
-    + `&hourly=temperature_2m,shortwave_radiation,cloud_cover,uv_index`
+    + `&hourly=temperature_2m,relative_humidity_2m,shortwave_radiation,cloud_cover,uv_index`
     + `&models=jma_seamless&timezone=Asia%2FTokyo&forecast_days=2`;
   try{
     const res = await fetch(url);
@@ -4113,7 +4247,7 @@ async function ensureMuniData(prefName, force){
         const temp = h && h.temperature_2m;
         if (Array.isArray(temp) && temp.length && typeof temp[0] === "number"){
           okCount++;
-          return { temp: h.temperature_2m, solar: h.shortwave_radiation || null, cloud: h.cloud_cover || null, uv: h.uv_index || null };
+          return { temp: h.temperature_2m, solar: h.shortwave_radiation || null, cloud: h.cloud_cover || null, uv: h.uv_index || null, humidity: h.relative_humidity_2m || null };
         }
       }catch(e){ /* この市町村は取得できなかった → nullのまま(都道府県の目安値にフォールバック) */ }
       return null;
@@ -4133,12 +4267,17 @@ async function ensureMuniData(prefName, force){
 /* ===================== MAIN UPDATE ===================== */
 let lastRows = [];
 function updateAll(){
+  // 選択中の地域(selectedRegion)は、選択した時点のhourlyデータへの参照を持ち続けるため、
+  // その後に全国・市町村のライブ再取得が完了しても古いデータを表示し続けてしまうことがある。
+  // 推定温度・暑さ指数など危険判定に直結する数値なので、描画のたびにkeyから再構築して
+  // 常に最新のPREFS_HOURLY/MUNI_HOURLYを反映するようにする。
+  if (selectedRegion) selectedRegion = regionFromKey(selectedRegion.key) || selectedRegion;
   refreshColorSeg();
-  document.getElementById("timeLabel").textContent = fmtHour(state.timeHour);
+  document.getElementById("timeLabel").textContent = fmtOffsetLabel(state.timeOffset);
   document.getElementById("adjLabel").textContent = (state.tempAdjust>0?"+":"")+state.tempAdjust+"℃";
   document.getElementById("windLabel").textContent = state.wind+" m/s";
   const now = new Date();
-  document.getElementById("metaTime").textContent = fmtHour(state.timeHour);
+  document.getElementById("metaTime").textContent = fmtClock(state.timeHour);
   const metric = currentMetric();
   updateMapHeadText();
   renderScaleGuide(metric);
