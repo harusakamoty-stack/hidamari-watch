@@ -1,0 +1,3679 @@
+<meta charset="utf-8">
+<title>陽だまりウォッチ</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=IBM+Plex+Sans+JP:wght@400;500;600;700&family=Big+Shoulders:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#120b09;
+  --bg-1:#180f0b;
+  --panel:#1d130e;
+  --panel-2:#241a13;
+  --line:#3a2718;
+  --line-soft:#2a1c13;
+  --text:#f7ece1;
+  --text-dim:#dcc7b2;
+  --text-faint:#a89076;
+
+  --sun:#ffcf6b;
+  --ember:#ff7a45;
+  --amber:#ffc24b;
+  --orange:#ff8a3d;
+  --crimson:#ff3d6e;
+  --safe:#2fd4a8;
+
+  /* "ink" variants: text/stroke-safe versions of the accent hues.
+     Dark theme reads fine with the vivid tones themselves, so ink = vivid here;
+     the light theme below redefines these to darker, contrast-checked values. */
+  --sun-ink:#ffcf6b;
+  --orange-ink:#ff8a3d;
+  --crimson-ink:#ff3d6e;
+  --hero-grad-start:#fff;
+  --tile-ink:rgba(15,9,6,0.78);
+  --tile-select-outline:#fff;
+  --hero-glow-top:rgba(36,22,14,0.9);
+  --hero-glow-bottom:rgba(18,11,9,0);
+  --haze-1:#7a4a28;
+  --haze-2:#7a5d28;
+
+  --r-0:#1c3b63;
+  --r-25:#2fa6a0;
+  --r-50:#ffc24b;
+  --r-75:#ff8a3d;
+  --r-100:#ff2f5e;
+
+  --radius:14px;
+  --font-display:"Zen Kaku Gothic New","Hiragino Sans","Noto Sans JP",sans-serif;
+  --font-body:"IBM Plex Sans JP","Hiragino Sans","Noto Sans JP",sans-serif;
+  --font-num:"Big Shoulders","Zen Kaku Gothic New",sans-serif;
+  --font-mono:"IBM Plex Mono","SF Mono",monospace;
+}
+:root[data-theme="light"]{
+  --bg:#fbf6ef;
+  --bg-1:#f3ead9;
+  --panel:#ffffff;
+  --panel-2:#f5ebdc;
+  --line:#e2d3bf;
+  --line-soft:#ece2d2;
+  --text:#241509;
+  --text-dim:#5b4535;
+  --text-faint:#75604f;
+
+  --sun:#ffcf6b;
+  --ember:#ff7a45;
+  --amber:#ffc24b;
+  --orange:#ff8a3d;
+  --crimson:#ff3d6e;
+  --safe:#2fd4a8;
+
+  --sun-ink:#825300;
+  --orange-ink:#c91f0b;
+  --crimson-ink:#6e003b;
+  --hero-grad-start:#241509;
+  --tile-ink:rgba(255,250,240,0.94);
+  --tile-select-outline:#241509;
+  --hero-glow-top:rgba(255,246,239,0);
+  --hero-glow-bottom:rgba(255,246,239,0);
+  --haze-1:#ffdba8;
+  --haze-2:#ffe6b8;
+
+  --r-0:#1c3b63;
+  --r-25:#008959;
+  --r-50:#714e04;
+  --r-75:#c91f0b;
+  --r-100:#6e003b;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{background:var(--bg); color:var(--text);}
+body{
+  font-family:var(--font-body);
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+  background:
+    radial-gradient(ellipse 900px 500px at 12% -10%, rgba(255,138,61,0.14), transparent 60%),
+    radial-gradient(ellipse 700px 500px at 100% 0%, rgba(255,207,107,0.10), transparent 55%),
+    var(--bg);
+  padding-bottom:70px;
+}
+a{color:inherit;}
+::selection{background:var(--ember); color:#1a0f08;}
+button{font-family:inherit;}
+:focus-visible{outline:2px solid var(--sun-ink); outline-offset:2px; border-radius:4px;}
+h1,h2,h3{font-family:var(--font-display); text-wrap:balance;}
+@media (prefers-reduced-motion: reduce){ *{animation-duration:0.01ms !important; transition-duration:0.01ms !important;} }
+
+/* ---------- HERO ---------- */
+.hero{position:relative; overflow:hidden; padding:52px 24px 36px; border-bottom:1px solid var(--line-soft);}
+.hero-glow{position:absolute; inset:0; background:linear-gradient(180deg, var(--hero-glow-top) 0%, var(--hero-glow-bottom) 70%); pointer-events:none;}
+.haze{position:absolute; border-radius:50%; filter:blur(42px); opacity:0.35; animation:drift 30s ease-in-out infinite;}
+.haze.h1{width:320px;height:150px; top:-50px; left:-60px; background:radial-gradient(circle,var(--haze-1),transparent 70%); animation-duration:34s;}
+.haze.h2{width:260px;height:130px; top:0; right:-40px; background:radial-gradient(circle,var(--haze-2),transparent 70%); animation-duration:26s; animation-delay:-6s;}
+@keyframes drift{0%,100%{transform:translate(0,0);} 50%{transform:translate(26px,10px);}}
+.sunmark{position:absolute; top:20px; right:120px; width:44px; height:44px; opacity:0.85; pointer-events:none;}
+.sunmark svg{width:100%; height:100%; filter:drop-shadow(0 0 12px var(--sun));}
+@media (max-width:760px){.sunmark{right:24px; top:14px; width:32px; height:32px;}}
+
+.eyebrow-row{position:relative; z-index:1; display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px;}
+.eyebrow{display:inline-flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:13px; letter-spacing:0.12em; text-transform:uppercase; color:var(--sun-ink); background:rgba(255,207,107,0.09); border:1px solid rgba(255,207,107,0.28); padding:5px 12px; border-radius:100px; margin-bottom:0;}
+.theme-toggle{flex:none; display:inline-flex; align-items:center; gap:7px; font-family:var(--font-mono); font-size:12.5px; font-weight:600; color:var(--text-dim); background:var(--panel); border:1px solid var(--line); padding:6px 13px; border-radius:100px; cursor:pointer; transition:color .15s, background .15s;}
+.theme-toggle:hover{color:var(--text); background:var(--panel-2);}
+@media (max-width:520px){.theme-toggle span.tt-label{display:none;}}
+.eyebrow .dot{width:6px;height:6px;border-radius:50%; background:var(--sun); box-shadow:0 0 8px var(--sun); animation:pulse 1.8s infinite;}
+@keyframes pulse{0%,100%{opacity:1;} 50%{opacity:0.25;}}
+.hero h1{position:relative; z-index:1; font-weight:900; font-size:clamp(30px,5.6vw,50px); line-height:1.15; letter-spacing:-0.01em; background:linear-gradient(120deg,var(--hero-grad-start) 8%,var(--sun-ink) 50%,var(--crimson-ink) 100%); -webkit-background-clip:text; background-clip:text; color:transparent; margin-bottom:12px;}
+.hero p{position:relative; z-index:1; max-width:640px; color:var(--text-dim); font-size:15.5px; line-height:1.8;}
+.hero .meta{position:relative; z-index:1; margin-top:20px; display:flex; flex-wrap:wrap; gap:9px;}
+.chip{font-family:var(--font-mono); font-size:12.5px; color:var(--text-dim); border:1px solid var(--line); background:var(--panel); padding:6px 11px; border-radius:8px;}
+.chip b{color:var(--text); font-weight:600;}
+.chip-btn{cursor:pointer; color:var(--sun-ink); font-weight:600; transition:background .15s;}
+.chip-btn:hover{background:var(--panel-2);}
+.chip-btn:disabled{opacity:0.5; cursor:default;}
+.live-badge{display:inline-block; vertical-align:middle; font-family:var(--font-mono); font-size:12px; font-weight:700; letter-spacing:0.06em; color:var(--safe); border:1px solid var(--safe); border-radius:100px; padding:3px 10px; margin-left:10px; transform:translateY(-4px);}
+.weather-status-note{position:relative; z-index:1; margin-top:9px; font-size:12.5px; color:var(--text-faint); max-width:640px; line-height:1.6;}
+
+/* ---------- LAYOUT ---------- */
+.wrap{max-width:1180px; margin:0 auto; padding:0 24px;}
+.stack{margin-top:30px; display:flex; flex-direction:column; gap:20px;}
+@media (max-width:760px){.wrap{padding:0 16px;} .hero{padding:34px 16px 26px;} .stack{margin-top:20px; gap:15px;}}
+
+/* ---------- STATS ---------- */
+.stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px;}
+.stat-card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:15px 17px;}
+.stat-card .label{font-size:12px; letter-spacing:0.06em; color:var(--text-faint); text-transform:uppercase; font-family:var(--font-mono); margin-bottom:7px;}
+.stat-card .value{font-family:var(--font-num); font-weight:800; font-size:26px; font-variant-numeric:tabular-nums;}
+.stat-card .sub{font-size:13px; color:var(--text-dim); margin-top:4px;}
+.stat-card.warn .value{color:var(--orange-ink);}
+.stat-card.danger .value{color:var(--crimson-ink);}
+
+/* ---------- CONTROLS ---------- */
+.controls{display:flex; flex-direction:column; gap:13px; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:14px;}
+.controls-label{font-family:var(--font-mono); font-size:11px; letter-spacing:0.08em; color:var(--text-faint); padding:0 2px; text-transform:uppercase; display:flex; justify-content:space-between;}
+.seg{display:flex; gap:4px; background:var(--bg-1); border:1px solid var(--line); border-radius:10px; padding:4px; overflow-x:auto; scrollbar-width:none;}
+.seg::-webkit-scrollbar{display:none;}
+.seg button{font-size:14px; font-weight:500; color:var(--text-dim); background:transparent; border:none; border-radius:7px; padding:9px 13px; cursor:pointer; transition:all .15s ease; white-space:nowrap; flex:0 0 auto; min-height:42px;}
+.seg button.active{background:linear-gradient(135deg,var(--sun),var(--ember)); color:#1a0f08; font-weight:700;}
+.seg button:not(.active):hover{color:var(--text); background:var(--panel-2);}
+.color-seg{display:flex; gap:8px; overflow-x:auto; scrollbar-width:none; padding:2px;}
+.color-seg::-webkit-scrollbar{display:none;}
+.color-opt{flex:0 0 auto; display:flex; flex-direction:column; align-items:center; gap:5px; background:transparent; border:none; cursor:pointer; padding:3px; width:50px;}
+.color-opt .dot{width:34px; height:34px; border-radius:50%; border:2px solid var(--line); box-shadow:inset 0 0 0 1px rgba(255,255,255,0.08);}
+.color-opt.active .dot{border-color:var(--sun); box-shadow:0 0 0 3px rgba(255,207,107,0.22);}
+.color-opt .nm{font-size:11px; color:var(--text-faint); text-align:center; line-height:1.2;}
+.color-opt.active .nm{color:var(--text);}
+.slider-row{display:flex; flex-direction:column; gap:6px;}
+input[type="range"]{width:100%; height:20px; -webkit-appearance:none; appearance:none; background:transparent; cursor:pointer;}
+input[type="range"]::-webkit-slider-runnable-track{height:6px; border-radius:999px; background:var(--bg-1); border:1px solid var(--line);}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none; width:20px; height:20px; border-radius:50%; background:linear-gradient(135deg,var(--sun),var(--ember)); border:3px solid var(--panel); margin-top:-8px;}
+input[type="range"]::-moz-range-track{height:6px;border-radius:999px;background:var(--bg-1); border:1px solid var(--line);}
+input[type="range"]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--sun);border:3px solid var(--panel);}
+.adv-toggle{display:flex; align-items:center; justify-content:space-between; background:none; border:none; color:var(--text-dim); font-size:13px; cursor:pointer; padding:2px;}
+.adv-body{display:none; flex-direction:column; gap:12px; padding-top:6px; border-top:1px solid var(--line-soft); margin-top:4px;}
+.adv-body.open{display:flex;}
+.toggle-line{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+.toggle-line .tl-label{font-size:13.5px; color:var(--text);}
+.toggle-line .tl-hint{font-size:11.5px; color:var(--text-faint); margin-top:1px;}
+.switch{position:relative; width:42px;height:24px; flex:none;}
+.switch input{position:absolute; inset:0; opacity:0; margin:0; cursor:pointer;}
+.switch-track{position:absolute; inset:0; background:var(--bg-1); border:1px solid var(--line); border-radius:999px; transition:background .15s;}
+.switch-thumb{position:absolute; top:2px; left:2px; width:18px;height:18px; border-radius:50%; background:var(--text-dim); transition:transform .15s, background .15s;}
+.switch input:checked ~ .switch-track{background:linear-gradient(135deg,var(--sun),var(--ember));}
+.switch input:checked ~ .switch-track ~ .switch-thumb{transform:translateX(18px); background:#1a0f08;}
+
+/* ---------- MAP CARD ---------- */
+.map-card{background:var(--panel); border:1px solid var(--line); border-radius:20px; padding:20px; position:relative; overflow:hidden;}
+.map-card::before{content:""; position:absolute; inset:0; background:radial-gradient(circle at 85% 10%, rgba(255,138,61,0.09), transparent 45%); pointer-events:none;}
+.metric-bar{display:flex; align-items:center; gap:12px; flex-wrap:wrap;}
+.metric-bar .seg{max-width:280px;}
+.map-head{display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:12px; margin-bottom:16px; position:relative;}
+.map-head h2{font-size:19.5px; font-weight:700;}
+.map-head p{font-size:13.5px; color:var(--text-dim); margin-top:4px;}
+.legend{display:flex; align-items:center; gap:9px; font-family:var(--font-mono); font-size:12px; color:var(--text-dim);}
+.legend .bar{width:140px; height:8px; border-radius:6px; background:linear-gradient(90deg,var(--r-0),var(--r-25),var(--r-50),var(--r-75),var(--r-100));}
+.map-scroll{overflow-x:auto; -webkit-overflow-scrolling:touch; margin:0 -20px; padding:0 20px 4px; scrollbar-width:thin;}
+.map-grid{display:grid; grid-template-columns:repeat(16, minmax(32px,1fr)); grid-auto-rows:minmax(32px,1fr); gap:5px; position:relative; min-width:600px;}
+.map-grid.compact{min-width:0; grid-template-columns:repeat(6,1fr); grid-auto-rows:minmax(48px,auto);}
+.tile{position:relative; border-radius:7px; display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:11.5px; font-weight:700; color:var(--tile-ink); cursor:pointer; border:1px solid rgba(255,255,255,0.06); transition:transform .15s ease, box-shadow .15s ease; user-select:none;}
+.tile:hover{transform:translateY(-2px) scale(1.06); z-index:5; box-shadow:0 8px 20px rgba(0,0,0,0.45);}
+.tile.selected{outline:2px solid var(--tile-select-outline); outline-offset:1px; z-index:6;}
+.tile.hokkaido{font-size:13px;}
+.tile.compact-tile{font-size:13.5px; border-radius:10px; min-height:48px;}
+.tile.hot::after{content:""; position:absolute; inset:-4px; border-radius:10px; border:1.5px solid var(--crimson); opacity:0.9; animation:radarping 1.6s ease-out infinite; pointer-events:none;}
+@keyframes radarping{0%{transform:scale(0.9); opacity:0.9;} 100%{transform:scale(1.35); opacity:0;}}
+.scroll-hint{display:none; align-items:center; gap:6px; font-family:var(--font-mono); font-size:11.5px; color:var(--text-faint); margin-top:9px;}
+.scroll-hint svg{width:13px;height:13px; animation:swipe 1.6s ease-in-out infinite;}
+@keyframes swipe{0%,100%{transform:translateX(0); opacity:0.5;} 50%{transform:translateX(5px); opacity:1;}}
+@media (hover:none){.scroll-hint{display:flex;}}
+.table-toggle{margin-top:12px; background:none; border:none; color:var(--sun-ink); font-size:13px; font-weight:600; cursor:pointer; padding:2px 0;}
+.pref-table-wrap{display:none; overflow-x:auto; margin-top:10px;}
+.pref-table-wrap.open{display:block;}
+table.pref-table{border-collapse:collapse; width:100%; font-size:12.5px; font-family:var(--font-mono);}
+table.pref-table th,table.pref-table td{padding:6px 9px; text-align:right; border-bottom:1px solid var(--line-soft); white-space:nowrap;}
+table.pref-table th:first-child,table.pref-table td:first-child{text-align:left;}
+table.pref-table thead th{color:var(--text-faint); font-weight:500; font-size:11px;}
+table.pref-table tbody tr{cursor:pointer;}
+table.pref-table tbody tr:hover{background:var(--panel-2);}
+
+/* ---------- DETAIL ---------- */
+.detail{background:var(--panel); border:1px solid var(--line); border-radius:20px; padding:24px; display:grid; grid-template-columns:190px 1fr; gap:26px;}
+@media (max-width:680px){.detail{grid-template-columns:1fr; padding:18px;}}
+.gauge-col{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:9px; border-right:1px solid var(--line-soft); padding-right:22px;}
+@media (max-width:680px){.gauge-col{border-right:none; border-bottom:1px solid var(--line-soft); padding-right:0; padding-bottom:18px;}}
+.gauge{position:relative; width:148px; height:148px;}
+.gauge svg{transform:rotate(-90deg);}
+.gauge .bg{fill:none; stroke:var(--line); stroke-width:10;}
+.gauge .fg{fill:none; stroke-width:10; stroke-linecap:round; transition:stroke-dasharray .5s ease, stroke .5s ease;}
+.gauge .num{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;}
+.gauge .num .n{font-family:var(--font-num); font-weight:800; font-size:26px; line-height:1;}
+.gauge .num .u{font-family:var(--font-mono); font-size:12px; color:var(--text-dim); margin-top:3px;}
+.risk-label{font-family:var(--font-display); font-weight:700; font-size:14.5px; padding:5px 14px; border-radius:100px;}
+.detail-body h3{font-size:23px; font-weight:700; margin-bottom:3px;}
+.region-tag{font-family:var(--font-mono); font-size:12.5px; color:var(--text-dim); margin-bottom:14px; display:block;}
+.factors{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;}
+.factor{display:flex; align-items:center; gap:6px; font-size:13.5px; color:var(--text); background:var(--bg-1); border:1px solid var(--line); padding:6px 11px; border-radius:9px;}
+.factor .ic{font-size:14.5px;}
+.advice{font-size:14px; line-height:1.8; color:var(--text-dim); background:var(--bg-1); border:1px solid var(--line-soft); border-left:3px solid var(--sun); padding:13px 15px; border-radius:0 10px 10px 0;}
+.advice b{color:var(--sun-ink); font-weight:700;}
+.detail-empty{grid-column:1/-1; display:flex; align-items:center; justify-content:center; padding:20px; color:var(--text-faint); font-size:14px; line-height:1.7; text-align:center; background:var(--bg-1); border:1px solid var(--line-soft); border-radius:14px;}
+.detail-empty b{color:var(--text);}
+.detail-extra{grid-column:1/-1; margin-top:6px; display:none; flex-direction:column; gap:18px;}
+.detail-extra.open{display:flex;}
+.detail-sub-title{font-size:14px; font-weight:700; color:var(--text); margin-bottom:8px; display:flex; align-items:center; gap:6px;}
+.legend2{display:flex; flex-wrap:wrap; gap:12px; font-size:12px; color:var(--text-dim); margin-top:6px;}
+.legend2-item{display:flex; align-items:center; gap:6px;}
+.legend2-swatch{width:16px; height:0; border-top-width:2.5px; border-top-style:solid;}
+.legend2-swatch.dashed{border-top-style:dashed;}
+.chart-wrap{position:relative; width:100%;}
+.chart-wrap svg{display:block; width:100%; height:auto; overflow:visible;}
+.chart-tooltip{position:absolute; pointer-events:none; background:var(--text); color:var(--bg); font-family:var(--font-mono); font-size:11.5px; padding:6px 9px; border-radius:8px; line-height:1.5; box-shadow:0 8px 20px rgba(0,0,0,0.4); transform:translate(-50%,-100%); white-space:nowrap; opacity:0; transition:opacity .1s; z-index:5;}
+.chart-tooltip.show{opacity:1;}
+.forecast-note{margin-top:10px; font-size:13px; padding:9px 11px; border-radius:10px; background:var(--bg-1); border:1px solid var(--line-soft); color:var(--text-dim);}
+.bar-row{display:grid; grid-template-columns:64px 1fr 46px; align-items:center; gap:10px; padding:5px 0;}
+.bar-row-name{font-size:12.5px; color:var(--text-dim); font-weight:500;}
+.bar-track{position:relative; height:18px; border-radius:6px; background:var(--bg-1); border:1px solid var(--line-soft); overflow:hidden;}
+.bar-fill{position:absolute; left:0; top:0; bottom:0; border-radius:5px 3px 3px 5px;}
+.bar-row-value{font-family:var(--font-mono); font-size:12.5px; text-align:right;}
+.bar-row.selected .bar-row-name{color:var(--text); font-weight:700;}
+.notify-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+.btn{font-weight:700; font-size:14px; color:#1a0f08; background:linear-gradient(135deg,var(--sun),var(--ember)); border:none; border-radius:9px; padding:10px 15px; cursor:pointer; min-height:40px;}
+.btn:hover{opacity:0.88;}
+.btn.ghost{background:transparent; color:var(--text-dim); border:1px solid var(--line);}
+.btn.ghost:hover{color:var(--text); background:var(--panel-2);}
+.btn.small{padding:8px 13px; font-size:13px; width:auto;}
+
+/* ---------- METHOD ---------- */
+.method{background:var(--panel); border:1px solid var(--line); border-radius:20px; padding:24px;}
+.method h2{font-size:18.5px; font-weight:700; margin-bottom:13px;}
+.method-summary p{font-size:13.5px; color:var(--text-dim); line-height:1.8; margin-bottom:10px;}
+.scale-guide{background:var(--bg-1); border:1px solid var(--line-soft); border-radius:14px; padding:17px 19px; margin-bottom:18px;}
+.scale-guide h3{font-size:15.5px; font-weight:700; margin-bottom:4px;}
+.scale-guide-lead{font-size:13.5px; color:var(--text-dim); line-height:1.7; margin-bottom:14px;}
+.scale-bar-visual{height:12px; border-radius:8px; background:linear-gradient(90deg,var(--r-0),var(--r-25),var(--r-50),var(--r-75),var(--r-100)); margin-bottom:10px;}
+.scale-levels{display:flex; flex-wrap:wrap; gap:14px 18px; margin-bottom:14px;}
+.scale-level{display:flex; align-items:center; gap:7px; font-size:13px; color:var(--text-dim); white-space:nowrap;}
+.scale-level .dot{width:9px;height:9px;border-radius:50%; flex:none;}
+.scale-level b{color:var(--text); font-family:var(--font-mono); font-size:13px;}
+.scale-note{font-size:13px; color:var(--text-dim); line-height:1.8; border-top:1px solid var(--line-soft); padding-top:12px;}
+.scale-note b{color:var(--text);}
+.disclaimer{font-size:12.5px; line-height:1.85; color:var(--text-dim); border-top:1px solid var(--line-soft); padding-top:14px; margin-top:16px;}
+.disclaimer b{color:var(--sun-ink); font-weight:700;}
+.sources{margin-top:9px; display:flex; flex-wrap:wrap; gap:7px;}
+.sources span{font-family:var(--font-mono); font-size:11px; color:var(--text-faint); border:1px solid var(--line-soft); padding:3px 8px; border-radius:6px;}
+
+/* ---------- USAGE GUIDE ---------- */
+.collapse-wrap{display:none; margin-top:12px;}
+.collapse-wrap.open{display:block;}
+.guide-steps{list-style:none; counter-reset:step; display:flex; flex-direction:column; gap:11px; margin:0;}
+.guide-steps li{position:relative; padding-left:34px; font-size:13.5px; color:var(--text-dim); line-height:1.7;}
+.guide-steps li::before{counter-increment:step; content:counter(step); position:absolute; left:0; top:0; width:24px; height:24px; border-radius:50%; background:var(--panel-2); border:1px solid var(--line); color:var(--sun-ink); font-family:var(--font-mono); font-weight:700; font-size:12.5px; display:flex; align-items:center; justify-content:center;}
+.guide-steps li b{color:var(--text);}
+
+/* ---------- SHARE / QR ---------- */
+.share-card{background:var(--panel); border:1px solid var(--line); border-radius:20px; padding:24px; text-align:center;}
+.share-card h2{font-size:18.5px; font-weight:700; margin-bottom:4px;}
+.share-card .share-sub{font-size:13.5px; color:var(--text-dim); margin:0;}
+.share-body{display:flex; align-items:center; justify-content:center; gap:24px; flex-wrap:wrap; margin-top:16px;}
+.qr-box{width:156px; height:156px; flex:0 0 auto; background:#fff; border-radius:14px; display:flex; align-items:center; justify-content:center; padding:10px; box-shadow:0 8px 24px rgba(0,0,0,0.25);}
+.qr-box svg{width:100%; height:100%; display:block;}
+.qr-note{font-family:var(--font-mono); font-size:11.5px; color:#5b5040; text-align:center; line-height:1.6;}
+.share-link-col{text-align:left; max-width:320px;}
+.share-link-row{display:flex; align-items:center; gap:8px; margin-top:6px;}
+.share-link{font-family:var(--font-mono); font-size:13px; color:var(--sun-ink); word-break:break-all; text-decoration:none; border:1px solid var(--line); background:var(--bg-1); padding:8px 10px; border-radius:8px; flex:1; min-width:0;}
+.share-link:hover{text-decoration:underline;}
+@media (max-width:600px){
+  .share-card{padding:18px; border-radius:16px;}
+  .share-body{flex-direction:column;}
+  .share-link-col{text-align:center; max-width:none; width:100%;}
+  .share-link-row{flex-direction:column;}
+  .share-link{width:100%; text-align:center;}
+}
+
+footer{text-align:center; padding:26px 20px 6px; color:var(--text-faint); font-size:12px; font-family:var(--font-mono);}
+
+/* ---------- TOASTS ---------- */
+#toastWrap{position:fixed; top:14px; right:14px; z-index:999; display:flex; flex-direction:column; gap:8px; max-width:320px;}
+.toast{background:var(--panel); border:1px solid var(--crimson); border-left:4px solid var(--crimson); border-radius:10px; padding:11px 13px; box-shadow:0 10px 30px rgba(0,0,0,0.5); font-size:13.5px; line-height:1.6; color:var(--text); animation:toastIn .25s ease;}
+.toast b{color:var(--crimson-ink);}
+@keyframes toastIn{from{transform:translateX(30px); opacity:0;} to{transform:translateX(0); opacity:1;}}
+@media (max-width:600px){#toastWrap{left:12px; right:12px; max-width:none;}}
+</style>
+
+<div id="toastWrap"></div>
+
+<div class="hero">
+  <div class="hero-glow"></div>
+  <div class="haze h1"></div>
+  <div class="haze h2"></div>
+  <div class="sunmark"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="5" fill="currentColor" style="color:var(--sun)"/><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="color:var(--sun)"><line x1="12" y1="1" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="23"/><line x1="1" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="23" y2="12"/><line x1="4.2" y1="4.2" x2="6.3" y2="6.3"/><line x1="17.7" y1="17.7" x2="19.8" y2="19.8"/><line x1="4.2" y1="19.8" x2="6.3" y2="17.7"/><line x1="17.7" y1="6.3" x2="19.8" y2="4.2"/></g></svg></div>
+  <div class="wrap">
+    <div class="eyebrow-row">
+      <div class="eyebrow"><span class="dot"></span>SUN EXPOSURE ESTIMATE — 全国 車両ヒートリスク推定</div>
+      <button type="button" id="themeToggle" class="theme-toggle" aria-label="表示テーマを切り替え"></button>
+    </div>
+    <h1>陽だまりウォッチ <span class="live-badge">LIVE</span></h1>
+    <p>車体の色・車種と、都道府県ごとのその場でライブ取得した気温・日射量・雲量・風速・UV指数、および緯度・時刻から算出した太陽高度から、対流と放射の熱収支モデルにより直射日光による車外ボディと車内の温度上昇を推定します。都道府県タイルをタップすると詳細な推定と今後の見通しが見られます。</p>
+    <div class="meta">
+      <div class="chip">対象 <b>全国47都道府県</b></div>
+      <div class="chip">基準時刻 <b id="metaTime">--:--</b></div>
+      <div class="chip">単位 <b>推定車内温度(℃)</b></div>
+      <div class="chip" id="weatherDataChip">気温データ <b>取得中…</b></div>
+      <button type="button" id="weatherRefreshBtn" class="chip chip-btn">🔄 気象データを再取得</button>
+    </div>
+    <div class="weather-status-note" id="weatherStatusNote"></div>
+  </div>
+</div>
+
+<div class="wrap stack">
+
+  <div class="map-card">
+    <div class="map-head">
+      <div>
+        <h2>📘 使い方ガイド</h2>
+        <p>陽だまりウォッチの基本的な使い方をまとめています</p>
+      </div>
+    </div>
+    <button class="table-toggle" id="guideToggle" type="button">使い方を見る ▾</button>
+    <div class="collapse-wrap" id="guideBody">
+      <ol class="guide-steps">
+        <li><b>車体の色・車種・天候・想定する時刻</b>を選びます。地図やグラフはこの設定にすぐ反映されます。気温・日射量・雲量・風速はページを開いた時点でライブ取得した値が初期状態として使われます。</li>
+        <li><b>全国ヒートマップ</b>の都道府県タイル、または「全47都道府県を表で見る」の表の行をタップ/クリックすると、その地域の詳細な推定が下に表示されます。</li>
+        <li>詳細パネルの円形ゲージと5段階の色(✓安全 〜 ⛔危険)で、選んだ条件でのリスクの高さが一目でわかります。「ヒートマップ・統計の表示」で車内/車外ボディの切り替えも可能です。</li>
+        <li><b>これからの見通し(8時間)</b>グラフでは、この先の気温・車外ボディ・車内温度の推移と、警戒域に達しそうなタイミングが確認できます。グラフ上をなぞるとその時点の数値が見られます。</li>
+        <li>「詳細設定」を開くと、風速・サンシェード使用・今まさに駐車したか・窓を少し開けているか、といった条件も細かく調整できます。「気温補正」は平年値や予報からの上下を仮に動かして試すためのスライダーです。</li>
+        <li>気象データはページを開いた時に自動で最新の予報を取得します。しばらく開いたままにしていた場合は、ヘッダーの「🔄 気象データを再取得」で更新してください。取得に失敗した場合は待機中の目安値で表示を継続します。</li>
+        <li>気になる地域の状況を人に知らせたいときは、ページ下部「このアプリを知人に紹介する」のQRコードやリンクをお使いください。</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="metric-bar">
+    <span class="controls-label" style="padding:0;">ヒートマップ・統計の表示</span>
+    <div class="seg" id="metricSeg"></div>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="controls">
+    <div>
+      <div class="controls-label"><span>車体の色</span><span id="colorAlphaLabel"></span></div>
+      <div class="color-seg" id="colorSeg"></div>
+    </div>
+    <div>
+      <div class="controls-label"><span>車種・大きさ</span></div>
+      <div class="seg" id="typeSeg"></div>
+    </div>
+    <div>
+      <div class="controls-label"><span>天候</span></div>
+      <div class="seg" id="weatherSeg"></div>
+    </div>
+    <div class="slider-row">
+      <div class="controls-label"><span>想定する時刻</span><span id="timeLabel"></span></div>
+      <input type="range" id="timeSlider" min="5" max="19" step="0.25" value="13" aria-label="想定する時刻">
+    </div>
+    <div class="slider-row">
+      <div class="controls-label"><span>気温補正(予報値からの上下)</span><span id="adjLabel"></span></div>
+      <input type="range" id="adjSlider" min="-5" max="5" step="1" value="0" aria-label="気温補正">
+    </div>
+    <button class="adv-toggle" id="advToggle" type="button">
+      <span>詳細設定(風速・サンシェード・窓・駐車状況)</span>
+      <svg id="advChevron" width="14" height="14" viewBox="0 0 16 16" style="transition:transform .2s;"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="adv-body" id="advBody">
+      <div class="slider-row">
+        <div class="controls-label"><span>風速(体感)</span><span id="windLabel"></span></div>
+        <input type="range" id="windSlider" min="0" max="8" step="0.5" value="2" aria-label="風速">
+      </div>
+      <div class="toggle-line">
+        <div><div class="tl-label">今まさに駐車した</div><div class="tl-hint">オフ=しばらく駐車していた状態から計算</div></div>
+        <label class="switch"><input type="checkbox" id="justParkedToggle" checked><span class="switch-track"></span><span class="switch-thumb"></span></label>
+      </div>
+      <div class="toggle-line">
+        <div><div class="tl-label">サンシェードを使用</div><div class="tl-hint">フロントガラスからの日射を大きく抑える</div></div>
+        <label class="switch"><input type="checkbox" id="sunshadeToggle"><span class="switch-track"></span><span class="switch-thumb"></span></label>
+      </div>
+      <div class="toggle-line">
+        <div><div class="tl-label">窓を数cm開けている</div><div class="tl-hint">効果は限定的(下部「算出方法」参照)</div></div>
+        <label class="switch"><input type="checkbox" id="crackToggle"><span class="switch-track"></span><span class="switch-thumb"></span></label>
+      </div>
+    </div>
+  </div>
+
+  <div class="map-card">
+    <div class="map-head">
+      <div>
+        <h2>全国ヒートマップ</h2>
+        <p id="mapDesc">都道府県タイルをタップすると、その地域の詳細な推定が下に表示されます</p>
+      </div>
+      <div><div class="legend"><span>低</span><div class="bar"></div><span>高</span></div></div>
+    </div>
+    <div class="map-scroll">
+      <div class="map-grid" id="mapGrid"></div>
+    </div>
+    <div class="scroll-hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h16M15 6l6 6-6 6"/></svg>横にスクロールして全て表示</div>
+    <button class="table-toggle" id="prefTableToggle" type="button">全47都道府県を表で見る ▾</button>
+    <div class="pref-table-wrap" id="prefTableWrap">
+      <table class="pref-table">
+        <thead><tr><th>都道府県</th><th>気温目安</th><th>太陽高度</th><th id="thExt">車外</th><th id="thInt">車内</th></tr></thead>
+        <tbody id="prefTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="detail" id="detail">
+    <div class="detail-empty"><p><b>都道府県のタイル</b>、または上の表の行を選ぶと、ここに車外・車内の推定温度とこれからの見通しが表示されます。</p></div>
+  </div>
+
+  <div class="method">
+    <h2>🔎 算出方法について</h2>
+    <div class="scale-guide">
+      <h3>色の見方(5段階)</h3>
+      <p class="scale-guide-lead" id="scaleGuideLead">車内の推定温度を0〜100の指数に変換し、色で示しています。数値そのものより、下記5段階の感覚で見てください。</p>
+      <div class="scale-bar-visual"></div>
+      <div class="scale-levels" id="scaleLevels"></div>
+    </div>
+    <div class="method-summary">
+      <p><b style="color:var(--text)">車外ボディ表面温度</b>は、①太陽から吸収する熱、②風による対流で逃げる熱、③赤外線として空へ放出される熱(放射冷却)、の3つがつり合う温度を二分法で解く熱収支モデルに基づいています。気温・日射量・雲量・風速(体感の初期値)はOpen-Meteoから取得した都道府県ごとの時間帯別ライブ値を優先的に使い、取得できない場合や「天候」「風速」を手動で操作した後はそれぞれ緯度・時刻からの近似式・手動設定を使用します。風が強いほど対流による放熱が増え、雲が多いほど放射冷却が弱まるため、同じ気温でも表面温度は変わります。</p>
+      <p><b style="color:var(--text)">車内温度</b>は、ガラスから入る日射による温室効果と、ボディの熱伝導による寄与を合わせた平衡温度に、車種ごとの時定数で指数関数的に近づくモデルです。</p>
+      <p><b style="color:var(--text)">色による違い</b>は、米ローレンス・バークレー国立研究所などの研究(白系は日射の約6割を反射)や、シルバー車と黒色車で車内温度に約5〜6℃の差が生じたという実測例を参考に、色ごとの日射吸収率を設定しています。</p>
+      <p><b style="color:var(--text)">危険域の目安</b>(車内60℃〜)は、駐車車両内の温度が外気温の約1.8倍に達し、ダッシュボードが70℃を超えるという複数の実測研究を参考にしています。</p>
+      <p>あわせて、Open-Meteoが提供する<b style="color:var(--text)">UV指数</b>(世界保健機関のグローバル紫外線指数に基づく実測ベースの指数)を、都道府県を選んだ際の参考情報として表示しています。UVは熱によるダメージとは別に、主に塗装・樹脂パーツの色あせ・劣化に関わる指標です。</p>
+    </div>
+    <div class="disclaimer">
+      <b>ご利用にあたって：</b>このファイルは<b>ブラウザがページを開いたその場でOpen-Meteo(気象庁GSM・MSMモデルを含む複数の気象モデルを配信するオープンAPI)に直接アクセスし、都道府県代表地点の時間帯別(1時間ごと・最大48時間先まで)の気温・日射量・雲量・風速・UV指数を取得</b>します。サーバーを経由せず、あなたの端末から気象データ取得→熱収支モデルによる車体温度推定までがブラウザの中だけで完結します。ヘッダーの「🔄 気象データを再取得」でいつでも最新の予報に更新できます。通信環境やAPI側の状況によっては取得に失敗することがあり、その場合は待機中の目安値(平年値に近い値)で表示を継続します。太陽位置は緯度・時刻からの近似計算で、経度補正や大気減衰は簡略化しています。窓を数cm開ける対策も効果は限定的とされており、過信せず短時間でも人やペットを車内に残さないことが重要です。数値はすべて目安としてご利用ください。
+      <div class="sources">
+        <span>Lawrence Berkeley National Laboratory: Cool Colors for Cars</span>
+        <span>駐車車両の車内温度に関する実測研究(複数)</span>
+        <span>Open-Meteo API — api.open-meteo.com(気象庁 GSM・MSMモデルを含む、CORS対応・ブラウザから直接取得可能な気象データAPI)</span>
+        <span>Open-Meteo(UV指数 / WHO Global UV Index相当)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="share-card">
+    <h2>このアプリを知人に紹介する</h2>
+    <p class="share-sub">下のQRコードを読み取ると、このページを開けます。</p>
+    <div class="share-body">
+      <div class="qr-box" id="qrBox"><div class="qr-note">QRコードを生成中…</div></div>
+      <div class="share-link-col">
+        <div class="controls-label">このページのURL</div>
+        <div class="share-link-row">
+          <a id="shareLinkText" class="share-link" href="#" target="_blank" rel="noopener">-</a>
+          <button class="btn ghost small" id="copyLinkBtn" type="button">コピー</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>陽だまりウォッチ — プロトタイプ ／ 実測データではありません</footer>
+
+<script>
+/* qrcode.js -- QR Code Generator for JavaScript (MIT License, (c) 2009 Kazuhiko Arase) -- embedded for offline/self-contained use */
+//---------------------------------------------------------------------
+//
+// QR Code Generator for JavaScript
+//
+// Copyright (c) 2009 Kazuhiko Arase
+//
+// URL: http://www.d-project.com/
+//
+// Licensed under the MIT license:
+//  http://www.opensource.org/licenses/mit-license.php
+//
+// The word 'QR Code' is registered trademark of
+// DENSO WAVE INCORPORATED
+//  http://www.denso-wave.com/qrcode/faqpatent-e.html
+//
+//---------------------------------------------------------------------
+
+var qrcode = function() {
+
+  //---------------------------------------------------------------------
+  // qrcode
+  //---------------------------------------------------------------------
+
+  /**
+   * qrcode
+   * @param typeNumber 1 to 40
+   * @param errorCorrectionLevel 'L','M','Q','H'
+   */
+  var qrcode = function(typeNumber, errorCorrectionLevel) {
+
+    var PAD0 = 0xEC;
+    var PAD1 = 0x11;
+
+    var _typeNumber = typeNumber;
+    var _errorCorrectionLevel = QRErrorCorrectionLevel[errorCorrectionLevel];
+    var _modules = null;
+    var _moduleCount = 0;
+    var _dataCache = null;
+    var _dataList = [];
+
+    var _this = {};
+
+    var makeImpl = function(test, maskPattern) {
+
+      _moduleCount = _typeNumber * 4 + 17;
+      _modules = function(moduleCount) {
+        var modules = new Array(moduleCount);
+        for (var row = 0; row < moduleCount; row += 1) {
+          modules[row] = new Array(moduleCount);
+          for (var col = 0; col < moduleCount; col += 1) {
+            modules[row][col] = null;
+          }
+        }
+        return modules;
+      }(_moduleCount);
+
+      setupPositionProbePattern(0, 0);
+      setupPositionProbePattern(_moduleCount - 7, 0);
+      setupPositionProbePattern(0, _moduleCount - 7);
+      setupPositionAdjustPattern();
+      setupTimingPattern();
+      setupTypeInfo(test, maskPattern);
+
+      if (_typeNumber >= 7) {
+        setupTypeNumber(test);
+      }
+
+      if (_dataCache == null) {
+        _dataCache = createData(_typeNumber, _errorCorrectionLevel, _dataList);
+      }
+
+      mapData(_dataCache, maskPattern);
+    };
+
+    var setupPositionProbePattern = function(row, col) {
+
+      for (var r = -1; r <= 7; r += 1) {
+
+        if (row + r <= -1 || _moduleCount <= row + r) continue;
+
+        for (var c = -1; c <= 7; c += 1) {
+
+          if (col + c <= -1 || _moduleCount <= col + c) continue;
+
+          if ( (0 <= r && r <= 6 && (c == 0 || c == 6) )
+              || (0 <= c && c <= 6 && (r == 0 || r == 6) )
+              || (2 <= r && r <= 4 && 2 <= c && c <= 4) ) {
+            _modules[row + r][col + c] = true;
+          } else {
+            _modules[row + r][col + c] = false;
+          }
+        }
+      }
+    };
+
+    var getBestMaskPattern = function() {
+
+      var minLostPoint = 0;
+      var pattern = 0;
+
+      for (var i = 0; i < 8; i += 1) {
+
+        makeImpl(true, i);
+
+        var lostPoint = QRUtil.getLostPoint(_this);
+
+        if (i == 0 || minLostPoint > lostPoint) {
+          minLostPoint = lostPoint;
+          pattern = i;
+        }
+      }
+
+      return pattern;
+    };
+
+    var setupTimingPattern = function() {
+
+      for (var r = 8; r < _moduleCount - 8; r += 1) {
+        if (_modules[r][6] != null) {
+          continue;
+        }
+        _modules[r][6] = (r % 2 == 0);
+      }
+
+      for (var c = 8; c < _moduleCount - 8; c += 1) {
+        if (_modules[6][c] != null) {
+          continue;
+        }
+        _modules[6][c] = (c % 2 == 0);
+      }
+    };
+
+    var setupPositionAdjustPattern = function() {
+
+      var pos = QRUtil.getPatternPosition(_typeNumber);
+
+      for (var i = 0; i < pos.length; i += 1) {
+
+        for (var j = 0; j < pos.length; j += 1) {
+
+          var row = pos[i];
+          var col = pos[j];
+
+          if (_modules[row][col] != null) {
+            continue;
+          }
+
+          for (var r = -2; r <= 2; r += 1) {
+
+            for (var c = -2; c <= 2; c += 1) {
+
+              if (r == -2 || r == 2 || c == -2 || c == 2
+                  || (r == 0 && c == 0) ) {
+                _modules[row + r][col + c] = true;
+              } else {
+                _modules[row + r][col + c] = false;
+              }
+            }
+          }
+        }
+      }
+    };
+
+    var setupTypeNumber = function(test) {
+
+      var bits = QRUtil.getBCHTypeNumber(_typeNumber);
+
+      for (var i = 0; i < 18; i += 1) {
+        var mod = (!test && ( (bits >> i) & 1) == 1);
+        _modules[Math.floor(i / 3)][i % 3 + _moduleCount - 8 - 3] = mod;
+      }
+
+      for (var i = 0; i < 18; i += 1) {
+        var mod = (!test && ( (bits >> i) & 1) == 1);
+        _modules[i % 3 + _moduleCount - 8 - 3][Math.floor(i / 3)] = mod;
+      }
+    };
+
+    var setupTypeInfo = function(test, maskPattern) {
+
+      var data = (_errorCorrectionLevel << 3) | maskPattern;
+      var bits = QRUtil.getBCHTypeInfo(data);
+
+      // vertical
+      for (var i = 0; i < 15; i += 1) {
+
+        var mod = (!test && ( (bits >> i) & 1) == 1);
+
+        if (i < 6) {
+          _modules[i][8] = mod;
+        } else if (i < 8) {
+          _modules[i + 1][8] = mod;
+        } else {
+          _modules[_moduleCount - 15 + i][8] = mod;
+        }
+      }
+
+      // horizontal
+      for (var i = 0; i < 15; i += 1) {
+
+        var mod = (!test && ( (bits >> i) & 1) == 1);
+
+        if (i < 8) {
+          _modules[8][_moduleCount - i - 1] = mod;
+        } else if (i < 9) {
+          _modules[8][15 - i - 1 + 1] = mod;
+        } else {
+          _modules[8][15 - i - 1] = mod;
+        }
+      }
+
+      // fixed module
+      _modules[_moduleCount - 8][8] = (!test);
+    };
+
+    var mapData = function(data, maskPattern) {
+
+      var inc = -1;
+      var row = _moduleCount - 1;
+      var bitIndex = 7;
+      var byteIndex = 0;
+      var maskFunc = QRUtil.getMaskFunction(maskPattern);
+
+      for (var col = _moduleCount - 1; col > 0; col -= 2) {
+
+        if (col == 6) col -= 1;
+
+        while (true) {
+
+          for (var c = 0; c < 2; c += 1) {
+
+            if (_modules[row][col - c] == null) {
+
+              var dark = false;
+
+              if (byteIndex < data.length) {
+                dark = ( ( (data[byteIndex] >>> bitIndex) & 1) == 1);
+              }
+
+              var mask = maskFunc(row, col - c);
+
+              if (mask) {
+                dark = !dark;
+              }
+
+              _modules[row][col - c] = dark;
+              bitIndex -= 1;
+
+              if (bitIndex == -1) {
+                byteIndex += 1;
+                bitIndex = 7;
+              }
+            }
+          }
+
+          row += inc;
+
+          if (row < 0 || _moduleCount <= row) {
+            row -= inc;
+            inc = -inc;
+            break;
+          }
+        }
+      }
+    };
+
+    var createBytes = function(buffer, rsBlocks) {
+
+      var offset = 0;
+
+      var maxDcCount = 0;
+      var maxEcCount = 0;
+
+      var dcdata = new Array(rsBlocks.length);
+      var ecdata = new Array(rsBlocks.length);
+
+      for (var r = 0; r < rsBlocks.length; r += 1) {
+
+        var dcCount = rsBlocks[r].dataCount;
+        var ecCount = rsBlocks[r].totalCount - dcCount;
+
+        maxDcCount = Math.max(maxDcCount, dcCount);
+        maxEcCount = Math.max(maxEcCount, ecCount);
+
+        dcdata[r] = new Array(dcCount);
+
+        for (var i = 0; i < dcdata[r].length; i += 1) {
+          dcdata[r][i] = 0xff & buffer.getBuffer()[i + offset];
+        }
+        offset += dcCount;
+
+        var rsPoly = QRUtil.getErrorCorrectPolynomial(ecCount);
+        var rawPoly = qrPolynomial(dcdata[r], rsPoly.getLength() - 1);
+
+        var modPoly = rawPoly.mod(rsPoly);
+        ecdata[r] = new Array(rsPoly.getLength() - 1);
+        for (var i = 0; i < ecdata[r].length; i += 1) {
+          var modIndex = i + modPoly.getLength() - ecdata[r].length;
+          ecdata[r][i] = (modIndex >= 0)? modPoly.getAt(modIndex) : 0;
+        }
+      }
+
+      var totalCodeCount = 0;
+      for (var i = 0; i < rsBlocks.length; i += 1) {
+        totalCodeCount += rsBlocks[i].totalCount;
+      }
+
+      var data = new Array(totalCodeCount);
+      var index = 0;
+
+      for (var i = 0; i < maxDcCount; i += 1) {
+        for (var r = 0; r < rsBlocks.length; r += 1) {
+          if (i < dcdata[r].length) {
+            data[index] = dcdata[r][i];
+            index += 1;
+          }
+        }
+      }
+
+      for (var i = 0; i < maxEcCount; i += 1) {
+        for (var r = 0; r < rsBlocks.length; r += 1) {
+          if (i < ecdata[r].length) {
+            data[index] = ecdata[r][i];
+            index += 1;
+          }
+        }
+      }
+
+      return data;
+    };
+
+    var createData = function(typeNumber, errorCorrectionLevel, dataList) {
+
+      var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, errorCorrectionLevel);
+
+      var buffer = qrBitBuffer();
+
+      for (var i = 0; i < dataList.length; i += 1) {
+        var data = dataList[i];
+        buffer.put(data.getMode(), 4);
+        buffer.put(data.getLength(), QRUtil.getLengthInBits(data.getMode(), typeNumber) );
+        data.write(buffer);
+      }
+
+      // calc num max data.
+      var totalDataCount = 0;
+      for (var i = 0; i < rsBlocks.length; i += 1) {
+        totalDataCount += rsBlocks[i].dataCount;
+      }
+
+      if (buffer.getLengthInBits() > totalDataCount * 8) {
+        throw 'code length overflow. ('
+          + buffer.getLengthInBits()
+          + '>'
+          + totalDataCount * 8
+          + ')';
+      }
+
+      // end code
+      if (buffer.getLengthInBits() + 4 <= totalDataCount * 8) {
+        buffer.put(0, 4);
+      }
+
+      // padding
+      while (buffer.getLengthInBits() % 8 != 0) {
+        buffer.putBit(false);
+      }
+
+      // padding
+      while (true) {
+
+        if (buffer.getLengthInBits() >= totalDataCount * 8) {
+          break;
+        }
+        buffer.put(PAD0, 8);
+
+        if (buffer.getLengthInBits() >= totalDataCount * 8) {
+          break;
+        }
+        buffer.put(PAD1, 8);
+      }
+
+      return createBytes(buffer, rsBlocks);
+    };
+
+    _this.addData = function(data, mode) {
+
+      mode = mode || 'Byte';
+
+      var newData = null;
+
+      switch(mode) {
+      case 'Numeric' :
+        newData = qrNumber(data);
+        break;
+      case 'Alphanumeric' :
+        newData = qrAlphaNum(data);
+        break;
+      case 'Byte' :
+        newData = qr8BitByte(data);
+        break;
+      case 'Kanji' :
+        newData = qrKanji(data);
+        break;
+      default :
+        throw 'mode:' + mode;
+      }
+
+      _dataList.push(newData);
+      _dataCache = null;
+    };
+
+    _this.isDark = function(row, col) {
+      if (row < 0 || _moduleCount <= row || col < 0 || _moduleCount <= col) {
+        throw row + ',' + col;
+      }
+      return _modules[row][col];
+    };
+
+    _this.getModuleCount = function() {
+      return _moduleCount;
+    };
+
+    _this.make = function() {
+      if (_typeNumber < 1) {
+        var typeNumber = 1;
+
+        for (; typeNumber < 40; typeNumber++) {
+          var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, _errorCorrectionLevel);
+          var buffer = qrBitBuffer();
+
+          for (var i = 0; i < _dataList.length; i++) {
+            var data = _dataList[i];
+            buffer.put(data.getMode(), 4);
+            buffer.put(data.getLength(), QRUtil.getLengthInBits(data.getMode(), typeNumber) );
+            data.write(buffer);
+          }
+
+          var totalDataCount = 0;
+          for (var i = 0; i < rsBlocks.length; i++) {
+            totalDataCount += rsBlocks[i].dataCount;
+          }
+
+          if (buffer.getLengthInBits() <= totalDataCount * 8) {
+            break;
+          }
+        }
+
+        _typeNumber = typeNumber;
+      }
+
+      makeImpl(false, getBestMaskPattern() );
+    };
+
+    _this.createTableTag = function(cellSize, margin) {
+
+      cellSize = cellSize || 2;
+      margin = (typeof margin == 'undefined')? cellSize * 4 : margin;
+
+      var qrHtml = '';
+
+      qrHtml += '<table style="';
+      qrHtml += ' border-width: 0px; border-style: none;';
+      qrHtml += ' border-collapse: collapse;';
+      qrHtml += ' padding: 0px; margin: ' + margin + 'px;';
+      qrHtml += '">';
+      qrHtml += '<tbody>';
+
+      for (var r = 0; r < _this.getModuleCount(); r += 1) {
+
+        qrHtml += '<tr>';
+
+        for (var c = 0; c < _this.getModuleCount(); c += 1) {
+          qrHtml += '<td style="';
+          qrHtml += ' border-width: 0px; border-style: none;';
+          qrHtml += ' border-collapse: collapse;';
+          qrHtml += ' padding: 0px; margin: 0px;';
+          qrHtml += ' width: ' + cellSize + 'px;';
+          qrHtml += ' height: ' + cellSize + 'px;';
+          qrHtml += ' background-color: ';
+          qrHtml += _this.isDark(r, c)? '#000000' : '#ffffff';
+          qrHtml += ';';
+          qrHtml += '"/>';
+        }
+
+        qrHtml += '</tr>';
+      }
+
+      qrHtml += '</tbody>';
+      qrHtml += '</table>';
+
+      return qrHtml;
+    };
+
+    _this.createSvgTag = function(cellSize, margin, alt, title) {
+
+      var opts = {};
+      if (typeof arguments[0] == 'object') {
+        // Called by options.
+        opts = arguments[0];
+        // overwrite cellSize and margin.
+        cellSize = opts.cellSize;
+        margin = opts.margin;
+        alt = opts.alt;
+        title = opts.title;
+      }
+
+      cellSize = cellSize || 2;
+      margin = (typeof margin == 'undefined')? cellSize * 4 : margin;
+
+      // Compose alt property surrogate
+      alt = (typeof alt === 'string') ? {text: alt} : alt || {};
+      alt.text = alt.text || null;
+      alt.id = (alt.text) ? alt.id || 'qrcode-description' : null;
+
+      // Compose title property surrogate
+      title = (typeof title === 'string') ? {text: title} : title || {};
+      title.text = title.text || null;
+      title.id = (title.text) ? title.id || 'qrcode-title' : null;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+      var c, mc, r, mr, qrSvg='', rect;
+
+      rect = 'l' + cellSize + ',0 0,' + cellSize +
+        ' -' + cellSize + ',0 0,-' + cellSize + 'z ';
+
+      qrSvg += '<svg version="1.1" xmlns="http://www.w3.org/2000/svg"';
+      qrSvg += !opts.scalable ? ' width="' + size + 'px" height="' + size + 'px"' : '';
+      qrSvg += ' viewBox="0 0 ' + size + ' ' + size + '" ';
+      qrSvg += ' preserveAspectRatio="xMinYMin meet"';
+      qrSvg += (title.text || alt.text) ? ' role="img" aria-labelledby="' +
+          escapeXml([title.id, alt.id].join(' ').trim() ) + '"' : '';
+      qrSvg += '>';
+      qrSvg += (title.text) ? '<title id="' + escapeXml(title.id) + '">' +
+          escapeXml(title.text) + '</title>' : '';
+      qrSvg += (alt.text) ? '<description id="' + escapeXml(alt.id) + '">' +
+          escapeXml(alt.text) + '</description>' : '';
+      qrSvg += '<rect width="100%" height="100%" fill="white" cx="0" cy="0"/>';
+      qrSvg += '<path d="';
+
+      for (r = 0; r < _this.getModuleCount(); r += 1) {
+        mr = r * cellSize + margin;
+        for (c = 0; c < _this.getModuleCount(); c += 1) {
+          if (_this.isDark(r, c) ) {
+            mc = c*cellSize+margin;
+            qrSvg += 'M' + mc + ',' + mr + rect;
+          }
+        }
+      }
+
+      qrSvg += '" stroke="transparent" fill="black"/>';
+      qrSvg += '</svg>';
+
+      return qrSvg;
+    };
+
+    _this.createDataURL = function(cellSize, margin) {
+
+      cellSize = cellSize || 2;
+      margin = (typeof margin == 'undefined')? cellSize * 4 : margin;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+      var min = margin;
+      var max = size - margin;
+
+      return createDataURL(size, size, function(x, y) {
+        if (min <= x && x < max && min <= y && y < max) {
+          var c = Math.floor( (x - min) / cellSize);
+          var r = Math.floor( (y - min) / cellSize);
+          return _this.isDark(r, c)? 0 : 1;
+        } else {
+          return 1;
+        }
+      } );
+    };
+
+    _this.createImgTag = function(cellSize, margin, alt) {
+
+      cellSize = cellSize || 2;
+      margin = (typeof margin == 'undefined')? cellSize * 4 : margin;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+
+      var img = '';
+      img += '<img';
+      img += '\u0020src="';
+      img += _this.createDataURL(cellSize, margin);
+      img += '"';
+      img += '\u0020width="';
+      img += size;
+      img += '"';
+      img += '\u0020height="';
+      img += size;
+      img += '"';
+      if (alt) {
+        img += '\u0020alt="';
+        img += escapeXml(alt);
+        img += '"';
+      }
+      img += '/>';
+
+      return img;
+    };
+
+    var escapeXml = function(s) {
+      var escaped = '';
+      for (var i = 0; i < s.length; i += 1) {
+        var c = s.charAt(i);
+        switch(c) {
+        case '<': escaped += '&lt;'; break;
+        case '>': escaped += '&gt;'; break;
+        case '&': escaped += '&amp;'; break;
+        case '"': escaped += '&quot;'; break;
+        default : escaped += c; break;
+        }
+      }
+      return escaped;
+    };
+
+    var _createHalfASCII = function(margin) {
+      var cellSize = 1;
+      margin = (typeof margin == 'undefined')? cellSize * 2 : margin;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+      var min = margin;
+      var max = size - margin;
+
+      var y, x, r1, r2, p;
+
+      var blocks = {
+        '██': '█',
+        '█ ': '▀',
+        ' █': '▄',
+        '  ': ' '
+      };
+
+      var blocksLastLineNoMargin = {
+        '██': '▀',
+        '█ ': '▀',
+        ' █': ' ',
+        '  ': ' '
+      };
+
+      var ascii = '';
+      for (y = 0; y < size; y += 2) {
+        r1 = Math.floor((y - min) / cellSize);
+        r2 = Math.floor((y + 1 - min) / cellSize);
+        for (x = 0; x < size; x += 1) {
+          p = '█';
+
+          if (min <= x && x < max && min <= y && y < max && _this.isDark(r1, Math.floor((x - min) / cellSize))) {
+            p = ' ';
+          }
+
+          if (min <= x && x < max && min <= y+1 && y+1 < max && _this.isDark(r2, Math.floor((x - min) / cellSize))) {
+            p += ' ';
+          }
+          else {
+            p += '█';
+          }
+
+          // Output 2 characters per pixel, to create full square. 1 character per pixels gives only half width of square.
+          ascii += (margin < 1 && y+1 >= max) ? blocksLastLineNoMargin[p] : blocks[p];
+        }
+
+        ascii += '\n';
+      }
+
+      if (size % 2 && margin > 0) {
+        return ascii.substring(0, ascii.length - size - 1) + Array(size+1).join('▀');
+      }
+
+      return ascii.substring(0, ascii.length-1);
+    };
+
+    _this.createASCII = function(cellSize, margin) {
+      cellSize = cellSize || 1;
+
+      if (cellSize < 2) {
+        return _createHalfASCII(margin);
+      }
+
+      cellSize -= 1;
+      margin = (typeof margin == 'undefined')? cellSize * 2 : margin;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+      var min = margin;
+      var max = size - margin;
+
+      var y, x, r, p;
+
+      var white = Array(cellSize+1).join('██');
+      var black = Array(cellSize+1).join('  ');
+
+      var ascii = '';
+      var line = '';
+      for (y = 0; y < size; y += 1) {
+        r = Math.floor( (y - min) / cellSize);
+        line = '';
+        for (x = 0; x < size; x += 1) {
+          p = 1;
+
+          if (min <= x && x < max && min <= y && y < max && _this.isDark(r, Math.floor((x - min) / cellSize))) {
+            p = 0;
+          }
+
+          // Output 2 characters per pixel, to create full square. 1 character per pixels gives only half width of square.
+          line += p ? white : black;
+        }
+
+        for (r = 0; r < cellSize; r += 1) {
+          ascii += line + '\n';
+        }
+      }
+
+      return ascii.substring(0, ascii.length-1);
+    };
+
+    _this.renderTo2dContext = function(context, cellSize) {
+      cellSize = cellSize || 2;
+      var length = _this.getModuleCount();
+      for (var row = 0; row < length; row++) {
+        for (var col = 0; col < length; col++) {
+          context.fillStyle = _this.isDark(row, col) ? 'black' : 'white';
+          context.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+        }
+      }
+    }
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qrcode.stringToBytes
+  //---------------------------------------------------------------------
+
+  qrcode.stringToBytesFuncs = {
+    'default' : function(s) {
+      var bytes = [];
+      for (var i = 0; i < s.length; i += 1) {
+        var c = s.charCodeAt(i);
+        bytes.push(c & 0xff);
+      }
+      return bytes;
+    }
+  };
+
+  qrcode.stringToBytes = qrcode.stringToBytesFuncs['default'];
+
+  //---------------------------------------------------------------------
+  // qrcode.createStringToBytes
+  //---------------------------------------------------------------------
+
+  /**
+   * @param unicodeData base64 string of byte array.
+   * [16bit Unicode],[16bit Bytes], ...
+   * @param numChars
+   */
+  qrcode.createStringToBytes = function(unicodeData, numChars) {
+
+    // create conversion map.
+
+    var unicodeMap = function() {
+
+      var bin = base64DecodeInputStream(unicodeData);
+      var read = function() {
+        var b = bin.read();
+        if (b == -1) throw 'eof';
+        return b;
+      };
+
+      var count = 0;
+      var unicodeMap = {};
+      while (true) {
+        var b0 = bin.read();
+        if (b0 == -1) break;
+        var b1 = read();
+        var b2 = read();
+        var b3 = read();
+        var k = String.fromCharCode( (b0 << 8) | b1);
+        var v = (b2 << 8) | b3;
+        unicodeMap[k] = v;
+        count += 1;
+      }
+      if (count != numChars) {
+        throw count + ' != ' + numChars;
+      }
+
+      return unicodeMap;
+    }();
+
+    var unknownChar = '?'.charCodeAt(0);
+
+    return function(s) {
+      var bytes = [];
+      for (var i = 0; i < s.length; i += 1) {
+        var c = s.charCodeAt(i);
+        if (c < 128) {
+          bytes.push(c);
+        } else {
+          var b = unicodeMap[s.charAt(i)];
+          if (typeof b == 'number') {
+            if ( (b & 0xff) == b) {
+              // 1byte
+              bytes.push(b);
+            } else {
+              // 2bytes
+              bytes.push(b >>> 8);
+              bytes.push(b & 0xff);
+            }
+          } else {
+            bytes.push(unknownChar);
+          }
+        }
+      }
+      return bytes;
+    };
+  };
+
+  //---------------------------------------------------------------------
+  // QRMode
+  //---------------------------------------------------------------------
+
+  var QRMode = {
+    MODE_NUMBER :    1 << 0,
+    MODE_ALPHA_NUM : 1 << 1,
+    MODE_8BIT_BYTE : 1 << 2,
+    MODE_KANJI :     1 << 3
+  };
+
+  //---------------------------------------------------------------------
+  // QRErrorCorrectionLevel
+  //---------------------------------------------------------------------
+
+  var QRErrorCorrectionLevel = {
+    L : 1,
+    M : 0,
+    Q : 3,
+    H : 2
+  };
+
+  //---------------------------------------------------------------------
+  // QRMaskPattern
+  //---------------------------------------------------------------------
+
+  var QRMaskPattern = {
+    PATTERN000 : 0,
+    PATTERN001 : 1,
+    PATTERN010 : 2,
+    PATTERN011 : 3,
+    PATTERN100 : 4,
+    PATTERN101 : 5,
+    PATTERN110 : 6,
+    PATTERN111 : 7
+  };
+
+  //---------------------------------------------------------------------
+  // QRUtil
+  //---------------------------------------------------------------------
+
+  var QRUtil = function() {
+
+    var PATTERN_POSITION_TABLE = [
+      [],
+      [6, 18],
+      [6, 22],
+      [6, 26],
+      [6, 30],
+      [6, 34],
+      [6, 22, 38],
+      [6, 24, 42],
+      [6, 26, 46],
+      [6, 28, 50],
+      [6, 30, 54],
+      [6, 32, 58],
+      [6, 34, 62],
+      [6, 26, 46, 66],
+      [6, 26, 48, 70],
+      [6, 26, 50, 74],
+      [6, 30, 54, 78],
+      [6, 30, 56, 82],
+      [6, 30, 58, 86],
+      [6, 34, 62, 90],
+      [6, 28, 50, 72, 94],
+      [6, 26, 50, 74, 98],
+      [6, 30, 54, 78, 102],
+      [6, 28, 54, 80, 106],
+      [6, 32, 58, 84, 110],
+      [6, 30, 58, 86, 114],
+      [6, 34, 62, 90, 118],
+      [6, 26, 50, 74, 98, 122],
+      [6, 30, 54, 78, 102, 126],
+      [6, 26, 52, 78, 104, 130],
+      [6, 30, 56, 82, 108, 134],
+      [6, 34, 60, 86, 112, 138],
+      [6, 30, 58, 86, 114, 142],
+      [6, 34, 62, 90, 118, 146],
+      [6, 30, 54, 78, 102, 126, 150],
+      [6, 24, 50, 76, 102, 128, 154],
+      [6, 28, 54, 80, 106, 132, 158],
+      [6, 32, 58, 84, 110, 136, 162],
+      [6, 26, 54, 82, 110, 138, 166],
+      [6, 30, 58, 86, 114, 142, 170]
+    ];
+    var G15 = (1 << 10) | (1 << 8) | (1 << 5) | (1 << 4) | (1 << 2) | (1 << 1) | (1 << 0);
+    var G18 = (1 << 12) | (1 << 11) | (1 << 10) | (1 << 9) | (1 << 8) | (1 << 5) | (1 << 2) | (1 << 0);
+    var G15_MASK = (1 << 14) | (1 << 12) | (1 << 10) | (1 << 4) | (1 << 1);
+
+    var _this = {};
+
+    var getBCHDigit = function(data) {
+      var digit = 0;
+      while (data != 0) {
+        digit += 1;
+        data >>>= 1;
+      }
+      return digit;
+    };
+
+    _this.getBCHTypeInfo = function(data) {
+      var d = data << 10;
+      while (getBCHDigit(d) - getBCHDigit(G15) >= 0) {
+        d ^= (G15 << (getBCHDigit(d) - getBCHDigit(G15) ) );
+      }
+      return ( (data << 10) | d) ^ G15_MASK;
+    };
+
+    _this.getBCHTypeNumber = function(data) {
+      var d = data << 12;
+      while (getBCHDigit(d) - getBCHDigit(G18) >= 0) {
+        d ^= (G18 << (getBCHDigit(d) - getBCHDigit(G18) ) );
+      }
+      return (data << 12) | d;
+    };
+
+    _this.getPatternPosition = function(typeNumber) {
+      return PATTERN_POSITION_TABLE[typeNumber - 1];
+    };
+
+    _this.getMaskFunction = function(maskPattern) {
+
+      switch (maskPattern) {
+
+      case QRMaskPattern.PATTERN000 :
+        return function(i, j) { return (i + j) % 2 == 0; };
+      case QRMaskPattern.PATTERN001 :
+        return function(i, j) { return i % 2 == 0; };
+      case QRMaskPattern.PATTERN010 :
+        return function(i, j) { return j % 3 == 0; };
+      case QRMaskPattern.PATTERN011 :
+        return function(i, j) { return (i + j) % 3 == 0; };
+      case QRMaskPattern.PATTERN100 :
+        return function(i, j) { return (Math.floor(i / 2) + Math.floor(j / 3) ) % 2 == 0; };
+      case QRMaskPattern.PATTERN101 :
+        return function(i, j) { return (i * j) % 2 + (i * j) % 3 == 0; };
+      case QRMaskPattern.PATTERN110 :
+        return function(i, j) { return ( (i * j) % 2 + (i * j) % 3) % 2 == 0; };
+      case QRMaskPattern.PATTERN111 :
+        return function(i, j) { return ( (i * j) % 3 + (i + j) % 2) % 2 == 0; };
+
+      default :
+        throw 'bad maskPattern:' + maskPattern;
+      }
+    };
+
+    _this.getErrorCorrectPolynomial = function(errorCorrectLength) {
+      var a = qrPolynomial([1], 0);
+      for (var i = 0; i < errorCorrectLength; i += 1) {
+        a = a.multiply(qrPolynomial([1, QRMath.gexp(i)], 0) );
+      }
+      return a;
+    };
+
+    _this.getLengthInBits = function(mode, type) {
+
+      if (1 <= type && type < 10) {
+
+        // 1 - 9
+
+        switch(mode) {
+        case QRMode.MODE_NUMBER    : return 10;
+        case QRMode.MODE_ALPHA_NUM : return 9;
+        case QRMode.MODE_8BIT_BYTE : return 8;
+        case QRMode.MODE_KANJI     : return 8;
+        default :
+          throw 'mode:' + mode;
+        }
+
+      } else if (type < 27) {
+
+        // 10 - 26
+
+        switch(mode) {
+        case QRMode.MODE_NUMBER    : return 12;
+        case QRMode.MODE_ALPHA_NUM : return 11;
+        case QRMode.MODE_8BIT_BYTE : return 16;
+        case QRMode.MODE_KANJI     : return 10;
+        default :
+          throw 'mode:' + mode;
+        }
+
+      } else if (type < 41) {
+
+        // 27 - 40
+
+        switch(mode) {
+        case QRMode.MODE_NUMBER    : return 14;
+        case QRMode.MODE_ALPHA_NUM : return 13;
+        case QRMode.MODE_8BIT_BYTE : return 16;
+        case QRMode.MODE_KANJI     : return 12;
+        default :
+          throw 'mode:' + mode;
+        }
+
+      } else {
+        throw 'type:' + type;
+      }
+    };
+
+    _this.getLostPoint = function(qrcode) {
+
+      var moduleCount = qrcode.getModuleCount();
+
+      var lostPoint = 0;
+
+      // LEVEL1
+
+      for (var row = 0; row < moduleCount; row += 1) {
+        for (var col = 0; col < moduleCount; col += 1) {
+
+          var sameCount = 0;
+          var dark = qrcode.isDark(row, col);
+
+          for (var r = -1; r <= 1; r += 1) {
+
+            if (row + r < 0 || moduleCount <= row + r) {
+              continue;
+            }
+
+            for (var c = -1; c <= 1; c += 1) {
+
+              if (col + c < 0 || moduleCount <= col + c) {
+                continue;
+              }
+
+              if (r == 0 && c == 0) {
+                continue;
+              }
+
+              if (dark == qrcode.isDark(row + r, col + c) ) {
+                sameCount += 1;
+              }
+            }
+          }
+
+          if (sameCount > 5) {
+            lostPoint += (3 + sameCount - 5);
+          }
+        }
+      };
+
+      // LEVEL2
+
+      for (var row = 0; row < moduleCount - 1; row += 1) {
+        for (var col = 0; col < moduleCount - 1; col += 1) {
+          var count = 0;
+          if (qrcode.isDark(row, col) ) count += 1;
+          if (qrcode.isDark(row + 1, col) ) count += 1;
+          if (qrcode.isDark(row, col + 1) ) count += 1;
+          if (qrcode.isDark(row + 1, col + 1) ) count += 1;
+          if (count == 0 || count == 4) {
+            lostPoint += 3;
+          }
+        }
+      }
+
+      // LEVEL3
+
+      for (var row = 0; row < moduleCount; row += 1) {
+        for (var col = 0; col < moduleCount - 6; col += 1) {
+          if (qrcode.isDark(row, col)
+              && !qrcode.isDark(row, col + 1)
+              &&  qrcode.isDark(row, col + 2)
+              &&  qrcode.isDark(row, col + 3)
+              &&  qrcode.isDark(row, col + 4)
+              && !qrcode.isDark(row, col + 5)
+              &&  qrcode.isDark(row, col + 6) ) {
+            lostPoint += 40;
+          }
+        }
+      }
+
+      for (var col = 0; col < moduleCount; col += 1) {
+        for (var row = 0; row < moduleCount - 6; row += 1) {
+          if (qrcode.isDark(row, col)
+              && !qrcode.isDark(row + 1, col)
+              &&  qrcode.isDark(row + 2, col)
+              &&  qrcode.isDark(row + 3, col)
+              &&  qrcode.isDark(row + 4, col)
+              && !qrcode.isDark(row + 5, col)
+              &&  qrcode.isDark(row + 6, col) ) {
+            lostPoint += 40;
+          }
+        }
+      }
+
+      // LEVEL4
+
+      var darkCount = 0;
+
+      for (var col = 0; col < moduleCount; col += 1) {
+        for (var row = 0; row < moduleCount; row += 1) {
+          if (qrcode.isDark(row, col) ) {
+            darkCount += 1;
+          }
+        }
+      }
+
+      var ratio = Math.abs(100 * darkCount / moduleCount / moduleCount - 50) / 5;
+      lostPoint += ratio * 10;
+
+      return lostPoint;
+    };
+
+    return _this;
+  }();
+
+  //---------------------------------------------------------------------
+  // QRMath
+  //---------------------------------------------------------------------
+
+  var QRMath = function() {
+
+    var EXP_TABLE = new Array(256);
+    var LOG_TABLE = new Array(256);
+
+    // initialize tables
+    for (var i = 0; i < 8; i += 1) {
+      EXP_TABLE[i] = 1 << i;
+    }
+    for (var i = 8; i < 256; i += 1) {
+      EXP_TABLE[i] = EXP_TABLE[i - 4]
+        ^ EXP_TABLE[i - 5]
+        ^ EXP_TABLE[i - 6]
+        ^ EXP_TABLE[i - 8];
+    }
+    for (var i = 0; i < 255; i += 1) {
+      LOG_TABLE[EXP_TABLE[i] ] = i;
+    }
+
+    var _this = {};
+
+    _this.glog = function(n) {
+
+      if (n < 1) {
+        throw 'glog(' + n + ')';
+      }
+
+      return LOG_TABLE[n];
+    };
+
+    _this.gexp = function(n) {
+
+      while (n < 0) {
+        n += 255;
+      }
+
+      while (n >= 256) {
+        n -= 255;
+      }
+
+      return EXP_TABLE[n];
+    };
+
+    return _this;
+  }();
+
+  //---------------------------------------------------------------------
+  // qrPolynomial
+  //---------------------------------------------------------------------
+
+  function qrPolynomial(num, shift) {
+
+    if (typeof num.length == 'undefined') {
+      throw num.length + '/' + shift;
+    }
+
+    var _num = function() {
+      var offset = 0;
+      while (offset < num.length && num[offset] == 0) {
+        offset += 1;
+      }
+      var _num = new Array(num.length - offset + shift);
+      for (var i = 0; i < num.length - offset; i += 1) {
+        _num[i] = num[i + offset];
+      }
+      return _num;
+    }();
+
+    var _this = {};
+
+    _this.getAt = function(index) {
+      return _num[index];
+    };
+
+    _this.getLength = function() {
+      return _num.length;
+    };
+
+    _this.multiply = function(e) {
+
+      var num = new Array(_this.getLength() + e.getLength() - 1);
+
+      for (var i = 0; i < _this.getLength(); i += 1) {
+        for (var j = 0; j < e.getLength(); j += 1) {
+          num[i + j] ^= QRMath.gexp(QRMath.glog(_this.getAt(i) ) + QRMath.glog(e.getAt(j) ) );
+        }
+      }
+
+      return qrPolynomial(num, 0);
+    };
+
+    _this.mod = function(e) {
+
+      if (_this.getLength() - e.getLength() < 0) {
+        return _this;
+      }
+
+      var ratio = QRMath.glog(_this.getAt(0) ) - QRMath.glog(e.getAt(0) );
+
+      var num = new Array(_this.getLength() );
+      for (var i = 0; i < _this.getLength(); i += 1) {
+        num[i] = _this.getAt(i);
+      }
+
+      for (var i = 0; i < e.getLength(); i += 1) {
+        num[i] ^= QRMath.gexp(QRMath.glog(e.getAt(i) ) + ratio);
+      }
+
+      // recursive call
+      return qrPolynomial(num, 0).mod(e);
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // QRRSBlock
+  //---------------------------------------------------------------------
+
+  var QRRSBlock = function() {
+
+    var RS_BLOCK_TABLE = [
+
+      // L
+      // M
+      // Q
+      // H
+
+      // 1
+      [1, 26, 19],
+      [1, 26, 16],
+      [1, 26, 13],
+      [1, 26, 9],
+
+      // 2
+      [1, 44, 34],
+      [1, 44, 28],
+      [1, 44, 22],
+      [1, 44, 16],
+
+      // 3
+      [1, 70, 55],
+      [1, 70, 44],
+      [2, 35, 17],
+      [2, 35, 13],
+
+      // 4
+      [1, 100, 80],
+      [2, 50, 32],
+      [2, 50, 24],
+      [4, 25, 9],
+
+      // 5
+      [1, 134, 108],
+      [2, 67, 43],
+      [2, 33, 15, 2, 34, 16],
+      [2, 33, 11, 2, 34, 12],
+
+      // 6
+      [2, 86, 68],
+      [4, 43, 27],
+      [4, 43, 19],
+      [4, 43, 15],
+
+      // 7
+      [2, 98, 78],
+      [4, 49, 31],
+      [2, 32, 14, 4, 33, 15],
+      [4, 39, 13, 1, 40, 14],
+
+      // 8
+      [2, 121, 97],
+      [2, 60, 38, 2, 61, 39],
+      [4, 40, 18, 2, 41, 19],
+      [4, 40, 14, 2, 41, 15],
+
+      // 9
+      [2, 146, 116],
+      [3, 58, 36, 2, 59, 37],
+      [4, 36, 16, 4, 37, 17],
+      [4, 36, 12, 4, 37, 13],
+
+      // 10
+      [2, 86, 68, 2, 87, 69],
+      [4, 69, 43, 1, 70, 44],
+      [6, 43, 19, 2, 44, 20],
+      [6, 43, 15, 2, 44, 16],
+
+      // 11
+      [4, 101, 81],
+      [1, 80, 50, 4, 81, 51],
+      [4, 50, 22, 4, 51, 23],
+      [3, 36, 12, 8, 37, 13],
+
+      // 12
+      [2, 116, 92, 2, 117, 93],
+      [6, 58, 36, 2, 59, 37],
+      [4, 46, 20, 6, 47, 21],
+      [7, 42, 14, 4, 43, 15],
+
+      // 13
+      [4, 133, 107],
+      [8, 59, 37, 1, 60, 38],
+      [8, 44, 20, 4, 45, 21],
+      [12, 33, 11, 4, 34, 12],
+
+      // 14
+      [3, 145, 115, 1, 146, 116],
+      [4, 64, 40, 5, 65, 41],
+      [11, 36, 16, 5, 37, 17],
+      [11, 36, 12, 5, 37, 13],
+
+      // 15
+      [5, 109, 87, 1, 110, 88],
+      [5, 65, 41, 5, 66, 42],
+      [5, 54, 24, 7, 55, 25],
+      [11, 36, 12, 7, 37, 13],
+
+      // 16
+      [5, 122, 98, 1, 123, 99],
+      [7, 73, 45, 3, 74, 46],
+      [15, 43, 19, 2, 44, 20],
+      [3, 45, 15, 13, 46, 16],
+
+      // 17
+      [1, 135, 107, 5, 136, 108],
+      [10, 74, 46, 1, 75, 47],
+      [1, 50, 22, 15, 51, 23],
+      [2, 42, 14, 17, 43, 15],
+
+      // 18
+      [5, 150, 120, 1, 151, 121],
+      [9, 69, 43, 4, 70, 44],
+      [17, 50, 22, 1, 51, 23],
+      [2, 42, 14, 19, 43, 15],
+
+      // 19
+      [3, 141, 113, 4, 142, 114],
+      [3, 70, 44, 11, 71, 45],
+      [17, 47, 21, 4, 48, 22],
+      [9, 39, 13, 16, 40, 14],
+
+      // 20
+      [3, 135, 107, 5, 136, 108],
+      [3, 67, 41, 13, 68, 42],
+      [15, 54, 24, 5, 55, 25],
+      [15, 43, 15, 10, 44, 16],
+
+      // 21
+      [4, 144, 116, 4, 145, 117],
+      [17, 68, 42],
+      [17, 50, 22, 6, 51, 23],
+      [19, 46, 16, 6, 47, 17],
+
+      // 22
+      [2, 139, 111, 7, 140, 112],
+      [17, 74, 46],
+      [7, 54, 24, 16, 55, 25],
+      [34, 37, 13],
+
+      // 23
+      [4, 151, 121, 5, 152, 122],
+      [4, 75, 47, 14, 76, 48],
+      [11, 54, 24, 14, 55, 25],
+      [16, 45, 15, 14, 46, 16],
+
+      // 24
+      [6, 147, 117, 4, 148, 118],
+      [6, 73, 45, 14, 74, 46],
+      [11, 54, 24, 16, 55, 25],
+      [30, 46, 16, 2, 47, 17],
+
+      // 25
+      [8, 132, 106, 4, 133, 107],
+      [8, 75, 47, 13, 76, 48],
+      [7, 54, 24, 22, 55, 25],
+      [22, 45, 15, 13, 46, 16],
+
+      // 26
+      [10, 142, 114, 2, 143, 115],
+      [19, 74, 46, 4, 75, 47],
+      [28, 50, 22, 6, 51, 23],
+      [33, 46, 16, 4, 47, 17],
+
+      // 27
+      [8, 152, 122, 4, 153, 123],
+      [22, 73, 45, 3, 74, 46],
+      [8, 53, 23, 26, 54, 24],
+      [12, 45, 15, 28, 46, 16],
+
+      // 28
+      [3, 147, 117, 10, 148, 118],
+      [3, 73, 45, 23, 74, 46],
+      [4, 54, 24, 31, 55, 25],
+      [11, 45, 15, 31, 46, 16],
+
+      // 29
+      [7, 146, 116, 7, 147, 117],
+      [21, 73, 45, 7, 74, 46],
+      [1, 53, 23, 37, 54, 24],
+      [19, 45, 15, 26, 46, 16],
+
+      // 30
+      [5, 145, 115, 10, 146, 116],
+      [19, 75, 47, 10, 76, 48],
+      [15, 54, 24, 25, 55, 25],
+      [23, 45, 15, 25, 46, 16],
+
+      // 31
+      [13, 145, 115, 3, 146, 116],
+      [2, 74, 46, 29, 75, 47],
+      [42, 54, 24, 1, 55, 25],
+      [23, 45, 15, 28, 46, 16],
+
+      // 32
+      [17, 145, 115],
+      [10, 74, 46, 23, 75, 47],
+      [10, 54, 24, 35, 55, 25],
+      [19, 45, 15, 35, 46, 16],
+
+      // 33
+      [17, 145, 115, 1, 146, 116],
+      [14, 74, 46, 21, 75, 47],
+      [29, 54, 24, 19, 55, 25],
+      [11, 45, 15, 46, 46, 16],
+
+      // 34
+      [13, 145, 115, 6, 146, 116],
+      [14, 74, 46, 23, 75, 47],
+      [44, 54, 24, 7, 55, 25],
+      [59, 46, 16, 1, 47, 17],
+
+      // 35
+      [12, 151, 121, 7, 152, 122],
+      [12, 75, 47, 26, 76, 48],
+      [39, 54, 24, 14, 55, 25],
+      [22, 45, 15, 41, 46, 16],
+
+      // 36
+      [6, 151, 121, 14, 152, 122],
+      [6, 75, 47, 34, 76, 48],
+      [46, 54, 24, 10, 55, 25],
+      [2, 45, 15, 64, 46, 16],
+
+      // 37
+      [17, 152, 122, 4, 153, 123],
+      [29, 74, 46, 14, 75, 47],
+      [49, 54, 24, 10, 55, 25],
+      [24, 45, 15, 46, 46, 16],
+
+      // 38
+      [4, 152, 122, 18, 153, 123],
+      [13, 74, 46, 32, 75, 47],
+      [48, 54, 24, 14, 55, 25],
+      [42, 45, 15, 32, 46, 16],
+
+      // 39
+      [20, 147, 117, 4, 148, 118],
+      [40, 75, 47, 7, 76, 48],
+      [43, 54, 24, 22, 55, 25],
+      [10, 45, 15, 67, 46, 16],
+
+      // 40
+      [19, 148, 118, 6, 149, 119],
+      [18, 75, 47, 31, 76, 48],
+      [34, 54, 24, 34, 55, 25],
+      [20, 45, 15, 61, 46, 16]
+    ];
+
+    var qrRSBlock = function(totalCount, dataCount) {
+      var _this = {};
+      _this.totalCount = totalCount;
+      _this.dataCount = dataCount;
+      return _this;
+    };
+
+    var _this = {};
+
+    var getRsBlockTable = function(typeNumber, errorCorrectionLevel) {
+
+      switch(errorCorrectionLevel) {
+      case QRErrorCorrectionLevel.L :
+        return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 0];
+      case QRErrorCorrectionLevel.M :
+        return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 1];
+      case QRErrorCorrectionLevel.Q :
+        return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 2];
+      case QRErrorCorrectionLevel.H :
+        return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 3];
+      default :
+        return undefined;
+      }
+    };
+
+    _this.getRSBlocks = function(typeNumber, errorCorrectionLevel) {
+
+      var rsBlock = getRsBlockTable(typeNumber, errorCorrectionLevel);
+
+      if (typeof rsBlock == 'undefined') {
+        throw 'bad rs block @ typeNumber:' + typeNumber +
+            '/errorCorrectionLevel:' + errorCorrectionLevel;
+      }
+
+      var length = rsBlock.length / 3;
+
+      var list = [];
+
+      for (var i = 0; i < length; i += 1) {
+
+        var count = rsBlock[i * 3 + 0];
+        var totalCount = rsBlock[i * 3 + 1];
+        var dataCount = rsBlock[i * 3 + 2];
+
+        for (var j = 0; j < count; j += 1) {
+          list.push(qrRSBlock(totalCount, dataCount) );
+        }
+      }
+
+      return list;
+    };
+
+    return _this;
+  }();
+
+  //---------------------------------------------------------------------
+  // qrBitBuffer
+  //---------------------------------------------------------------------
+
+  var qrBitBuffer = function() {
+
+    var _buffer = [];
+    var _length = 0;
+
+    var _this = {};
+
+    _this.getBuffer = function() {
+      return _buffer;
+    };
+
+    _this.getAt = function(index) {
+      var bufIndex = Math.floor(index / 8);
+      return ( (_buffer[bufIndex] >>> (7 - index % 8) ) & 1) == 1;
+    };
+
+    _this.put = function(num, length) {
+      for (var i = 0; i < length; i += 1) {
+        _this.putBit( ( (num >>> (length - i - 1) ) & 1) == 1);
+      }
+    };
+
+    _this.getLengthInBits = function() {
+      return _length;
+    };
+
+    _this.putBit = function(bit) {
+
+      var bufIndex = Math.floor(_length / 8);
+      if (_buffer.length <= bufIndex) {
+        _buffer.push(0);
+      }
+
+      if (bit) {
+        _buffer[bufIndex] |= (0x80 >>> (_length % 8) );
+      }
+
+      _length += 1;
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qrNumber
+  //---------------------------------------------------------------------
+
+  var qrNumber = function(data) {
+
+    var _mode = QRMode.MODE_NUMBER;
+    var _data = data;
+
+    var _this = {};
+
+    _this.getMode = function() {
+      return _mode;
+    };
+
+    _this.getLength = function(buffer) {
+      return _data.length;
+    };
+
+    _this.write = function(buffer) {
+
+      var data = _data;
+
+      var i = 0;
+
+      while (i + 2 < data.length) {
+        buffer.put(strToNum(data.substring(i, i + 3) ), 10);
+        i += 3;
+      }
+
+      if (i < data.length) {
+        if (data.length - i == 1) {
+          buffer.put(strToNum(data.substring(i, i + 1) ), 4);
+        } else if (data.length - i == 2) {
+          buffer.put(strToNum(data.substring(i, i + 2) ), 7);
+        }
+      }
+    };
+
+    var strToNum = function(s) {
+      var num = 0;
+      for (var i = 0; i < s.length; i += 1) {
+        num = num * 10 + chatToNum(s.charAt(i) );
+      }
+      return num;
+    };
+
+    var chatToNum = function(c) {
+      if ('0' <= c && c <= '9') {
+        return c.charCodeAt(0) - '0'.charCodeAt(0);
+      }
+      throw 'illegal char :' + c;
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qrAlphaNum
+  //---------------------------------------------------------------------
+
+  var qrAlphaNum = function(data) {
+
+    var _mode = QRMode.MODE_ALPHA_NUM;
+    var _data = data;
+
+    var _this = {};
+
+    _this.getMode = function() {
+      return _mode;
+    };
+
+    _this.getLength = function(buffer) {
+      return _data.length;
+    };
+
+    _this.write = function(buffer) {
+
+      var s = _data;
+
+      var i = 0;
+
+      while (i + 1 < s.length) {
+        buffer.put(
+          getCode(s.charAt(i) ) * 45 +
+          getCode(s.charAt(i + 1) ), 11);
+        i += 2;
+      }
+
+      if (i < s.length) {
+        buffer.put(getCode(s.charAt(i) ), 6);
+      }
+    };
+
+    var getCode = function(c) {
+
+      if ('0' <= c && c <= '9') {
+        return c.charCodeAt(0) - '0'.charCodeAt(0);
+      } else if ('A' <= c && c <= 'Z') {
+        return c.charCodeAt(0) - 'A'.charCodeAt(0) + 10;
+      } else {
+        switch (c) {
+        case ' ' : return 36;
+        case '$' : return 37;
+        case '%' : return 38;
+        case '*' : return 39;
+        case '+' : return 40;
+        case '-' : return 41;
+        case '.' : return 42;
+        case '/' : return 43;
+        case ':' : return 44;
+        default :
+          throw 'illegal char :' + c;
+        }
+      }
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qr8BitByte
+  //---------------------------------------------------------------------
+
+  var qr8BitByte = function(data) {
+
+    var _mode = QRMode.MODE_8BIT_BYTE;
+    var _data = data;
+    var _bytes = qrcode.stringToBytes(data);
+
+    var _this = {};
+
+    _this.getMode = function() {
+      return _mode;
+    };
+
+    _this.getLength = function(buffer) {
+      return _bytes.length;
+    };
+
+    _this.write = function(buffer) {
+      for (var i = 0; i < _bytes.length; i += 1) {
+        buffer.put(_bytes[i], 8);
+      }
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qrKanji
+  //---------------------------------------------------------------------
+
+  var qrKanji = function(data) {
+
+    var _mode = QRMode.MODE_KANJI;
+    var _data = data;
+
+    var stringToBytes = qrcode.stringToBytesFuncs['SJIS'];
+    if (!stringToBytes) {
+      throw 'sjis not supported.';
+    }
+    !function(c, code) {
+      // self test for sjis support.
+      var test = stringToBytes(c);
+      if (test.length != 2 || ( (test[0] << 8) | test[1]) != code) {
+        throw 'sjis not supported.';
+      }
+    }('\u53cb', 0x9746);
+
+    var _bytes = stringToBytes(data);
+
+    var _this = {};
+
+    _this.getMode = function() {
+      return _mode;
+    };
+
+    _this.getLength = function(buffer) {
+      return ~~(_bytes.length / 2);
+    };
+
+    _this.write = function(buffer) {
+
+      var data = _bytes;
+
+      var i = 0;
+
+      while (i + 1 < data.length) {
+
+        var c = ( (0xff & data[i]) << 8) | (0xff & data[i + 1]);
+
+        if (0x8140 <= c && c <= 0x9FFC) {
+          c -= 0x8140;
+        } else if (0xE040 <= c && c <= 0xEBBF) {
+          c -= 0xC140;
+        } else {
+          throw 'illegal char at ' + (i + 1) + '/' + c;
+        }
+
+        c = ( (c >>> 8) & 0xff) * 0xC0 + (c & 0xff);
+
+        buffer.put(c, 13);
+
+        i += 2;
+      }
+
+      if (i < data.length) {
+        throw 'illegal char at ' + (i + 1);
+      }
+    };
+
+    return _this;
+  };
+
+  //=====================================================================
+  // GIF Support etc.
+  //
+
+  //---------------------------------------------------------------------
+  // byteArrayOutputStream
+  //---------------------------------------------------------------------
+
+  var byteArrayOutputStream = function() {
+
+    var _bytes = [];
+
+    var _this = {};
+
+    _this.writeByte = function(b) {
+      _bytes.push(b & 0xff);
+    };
+
+    _this.writeShort = function(i) {
+      _this.writeByte(i);
+      _this.writeByte(i >>> 8);
+    };
+
+    _this.writeBytes = function(b, off, len) {
+      off = off || 0;
+      len = len || b.length;
+      for (var i = 0; i < len; i += 1) {
+        _this.writeByte(b[i + off]);
+      }
+    };
+
+    _this.writeString = function(s) {
+      for (var i = 0; i < s.length; i += 1) {
+        _this.writeByte(s.charCodeAt(i) );
+      }
+    };
+
+    _this.toByteArray = function() {
+      return _bytes;
+    };
+
+    _this.toString = function() {
+      var s = '';
+      s += '[';
+      for (var i = 0; i < _bytes.length; i += 1) {
+        if (i > 0) {
+          s += ',';
+        }
+        s += _bytes[i];
+      }
+      s += ']';
+      return s;
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // base64EncodeOutputStream
+  //---------------------------------------------------------------------
+
+  var base64EncodeOutputStream = function() {
+
+    var _buffer = 0;
+    var _buflen = 0;
+    var _length = 0;
+    var _base64 = '';
+
+    var _this = {};
+
+    var writeEncoded = function(b) {
+      _base64 += String.fromCharCode(encode(b & 0x3f) );
+    };
+
+    var encode = function(n) {
+      if (n < 0) {
+        // error.
+      } else if (n < 26) {
+        return 0x41 + n;
+      } else if (n < 52) {
+        return 0x61 + (n - 26);
+      } else if (n < 62) {
+        return 0x30 + (n - 52);
+      } else if (n == 62) {
+        return 0x2b;
+      } else if (n == 63) {
+        return 0x2f;
+      }
+      throw 'n:' + n;
+    };
+
+    _this.writeByte = function(n) {
+
+      _buffer = (_buffer << 8) | (n & 0xff);
+      _buflen += 8;
+      _length += 1;
+
+      while (_buflen >= 6) {
+        writeEncoded(_buffer >>> (_buflen - 6) );
+        _buflen -= 6;
+      }
+    };
+
+    _this.flush = function() {
+
+      if (_buflen > 0) {
+        writeEncoded(_buffer << (6 - _buflen) );
+        _buffer = 0;
+        _buflen = 0;
+      }
+
+      if (_length % 3 != 0) {
+        // padding
+        var padlen = 3 - _length % 3;
+        for (var i = 0; i < padlen; i += 1) {
+          _base64 += '=';
+        }
+      }
+    };
+
+    _this.toString = function() {
+      return _base64;
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // base64DecodeInputStream
+  //---------------------------------------------------------------------
+
+  var base64DecodeInputStream = function(str) {
+
+    var _str = str;
+    var _pos = 0;
+    var _buffer = 0;
+    var _buflen = 0;
+
+    var _this = {};
+
+    _this.read = function() {
+
+      while (_buflen < 8) {
+
+        if (_pos >= _str.length) {
+          if (_buflen == 0) {
+            return -1;
+          }
+          throw 'unexpected end of file./' + _buflen;
+        }
+
+        var c = _str.charAt(_pos);
+        _pos += 1;
+
+        if (c == '=') {
+          _buflen = 0;
+          return -1;
+        } else if (c.match(/^\s$/) ) {
+          // ignore if whitespace.
+          continue;
+        }
+
+        _buffer = (_buffer << 6) | decode(c.charCodeAt(0) );
+        _buflen += 6;
+      }
+
+      var n = (_buffer >>> (_buflen - 8) ) & 0xff;
+      _buflen -= 8;
+      return n;
+    };
+
+    var decode = function(c) {
+      if (0x41 <= c && c <= 0x5a) {
+        return c - 0x41;
+      } else if (0x61 <= c && c <= 0x7a) {
+        return c - 0x61 + 26;
+      } else if (0x30 <= c && c <= 0x39) {
+        return c - 0x30 + 52;
+      } else if (c == 0x2b) {
+        return 62;
+      } else if (c == 0x2f) {
+        return 63;
+      } else {
+        throw 'c:' + c;
+      }
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // gifImage (B/W)
+  //---------------------------------------------------------------------
+
+  var gifImage = function(width, height) {
+
+    var _width = width;
+    var _height = height;
+    var _data = new Array(width * height);
+
+    var _this = {};
+
+    _this.setPixel = function(x, y, pixel) {
+      _data[y * _width + x] = pixel;
+    };
+
+    _this.write = function(out) {
+
+      //---------------------------------
+      // GIF Signature
+
+      out.writeString('GIF87a');
+
+      //---------------------------------
+      // Screen Descriptor
+
+      out.writeShort(_width);
+      out.writeShort(_height);
+
+      out.writeByte(0x80); // 2bit
+      out.writeByte(0);
+      out.writeByte(0);
+
+      //---------------------------------
+      // Global Color Map
+
+      // black
+      out.writeByte(0x00);
+      out.writeByte(0x00);
+      out.writeByte(0x00);
+
+      // white
+      out.writeByte(0xff);
+      out.writeByte(0xff);
+      out.writeByte(0xff);
+
+      //---------------------------------
+      // Image Descriptor
+
+      out.writeString(',');
+      out.writeShort(0);
+      out.writeShort(0);
+      out.writeShort(_width);
+      out.writeShort(_height);
+      out.writeByte(0);
+
+      //---------------------------------
+      // Local Color Map
+
+      //---------------------------------
+      // Raster Data
+
+      var lzwMinCodeSize = 2;
+      var raster = getLZWRaster(lzwMinCodeSize);
+
+      out.writeByte(lzwMinCodeSize);
+
+      var offset = 0;
+
+      while (raster.length - offset > 255) {
+        out.writeByte(255);
+        out.writeBytes(raster, offset, 255);
+        offset += 255;
+      }
+
+      out.writeByte(raster.length - offset);
+      out.writeBytes(raster, offset, raster.length - offset);
+      out.writeByte(0x00);
+
+      //---------------------------------
+      // GIF Terminator
+      out.writeString(';');
+    };
+
+    var bitOutputStream = function(out) {
+
+      var _out = out;
+      var _bitLength = 0;
+      var _bitBuffer = 0;
+
+      var _this = {};
+
+      _this.write = function(data, length) {
+
+        if ( (data >>> length) != 0) {
+          throw 'length over';
+        }
+
+        while (_bitLength + length >= 8) {
+          _out.writeByte(0xff & ( (data << _bitLength) | _bitBuffer) );
+          length -= (8 - _bitLength);
+          data >>>= (8 - _bitLength);
+          _bitBuffer = 0;
+          _bitLength = 0;
+        }
+
+        _bitBuffer = (data << _bitLength) | _bitBuffer;
+        _bitLength = _bitLength + length;
+      };
+
+      _this.flush = function() {
+        if (_bitLength > 0) {
+          _out.writeByte(_bitBuffer);
+        }
+      };
+
+      return _this;
+    };
+
+    var getLZWRaster = function(lzwMinCodeSize) {
+
+      var clearCode = 1 << lzwMinCodeSize;
+      var endCode = (1 << lzwMinCodeSize) + 1;
+      var bitLength = lzwMinCodeSize + 1;
+
+      // Setup LZWTable
+      var table = lzwTable();
+
+      for (var i = 0; i < clearCode; i += 1) {
+        table.add(String.fromCharCode(i) );
+      }
+      table.add(String.fromCharCode(clearCode) );
+      table.add(String.fromCharCode(endCode) );
+
+      var byteOut = byteArrayOutputStream();
+      var bitOut = bitOutputStream(byteOut);
+
+      // clear code
+      bitOut.write(clearCode, bitLength);
+
+      var dataIndex = 0;
+
+      var s = String.fromCharCode(_data[dataIndex]);
+      dataIndex += 1;
+
+      while (dataIndex < _data.length) {
+
+        var c = String.fromCharCode(_data[dataIndex]);
+        dataIndex += 1;
+
+        if (table.contains(s + c) ) {
+
+          s = s + c;
+
+        } else {
+
+          bitOut.write(table.indexOf(s), bitLength);
+
+          if (table.size() < 0xfff) {
+
+            if (table.size() == (1 << bitLength) ) {
+              bitLength += 1;
+            }
+
+            table.add(s + c);
+          }
+
+          s = c;
+        }
+      }
+
+      bitOut.write(table.indexOf(s), bitLength);
+
+      // end code
+      bitOut.write(endCode, bitLength);
+
+      bitOut.flush();
+
+      return byteOut.toByteArray();
+    };
+
+    var lzwTable = function() {
+
+      var _map = {};
+      var _size = 0;
+
+      var _this = {};
+
+      _this.add = function(key) {
+        if (_this.contains(key) ) {
+          throw 'dup key:' + key;
+        }
+        _map[key] = _size;
+        _size += 1;
+      };
+
+      _this.size = function() {
+        return _size;
+      };
+
+      _this.indexOf = function(key) {
+        return _map[key];
+      };
+
+      _this.contains = function(key) {
+        return typeof _map[key] != 'undefined';
+      };
+
+      return _this;
+    };
+
+    return _this;
+  };
+
+  var createDataURL = function(width, height, getPixel) {
+    var gif = gifImage(width, height);
+    for (var y = 0; y < height; y += 1) {
+      for (var x = 0; x < width; x += 1) {
+        gif.setPixel(x, y, getPixel(x, y) );
+      }
+    }
+
+    var b = byteArrayOutputStream();
+    gif.write(b);
+
+    var base64 = base64EncodeOutputStream();
+    var bytes = b.toByteArray();
+    for (var i = 0; i < bytes.length; i += 1) {
+      base64.writeByte(bytes[i]);
+    }
+    base64.flush();
+
+    return 'data:image/gif;base64,' + base64;
+  };
+
+  //---------------------------------------------------------------------
+  // returns qrcode function.
+
+  return qrcode;
+}();
+
+// multibyte support
+!function() {
+
+  qrcode.stringToBytesFuncs['UTF-8'] = function(s) {
+    // http://stackoverflow.com/questions/18729405/how-to-convert-utf8-string-to-byte-array
+    function toUTF8Array(str) {
+      var utf8 = [];
+      for (var i=0; i < str.length; i++) {
+        var charcode = str.charCodeAt(i);
+        if (charcode < 0x80) utf8.push(charcode);
+        else if (charcode < 0x800) {
+          utf8.push(0xc0 | (charcode >> 6),
+              0x80 | (charcode & 0x3f));
+        }
+        else if (charcode < 0xd800 || charcode >= 0xe000) {
+          utf8.push(0xe0 | (charcode >> 12),
+              0x80 | ((charcode>>6) & 0x3f),
+              0x80 | (charcode & 0x3f));
+        }
+        // surrogate pair
+        else {
+          i++;
+          // UTF-16 encodes 0x10000-0x10FFFF by
+          // subtracting 0x10000 and splitting the
+          // 20 bits of 0x0-0xFFFFF into two halves
+          charcode = 0x10000 + (((charcode & 0x3ff)<<10)
+            | (str.charCodeAt(i) & 0x3ff));
+          utf8.push(0xf0 | (charcode >>18),
+              0x80 | ((charcode>>12) & 0x3f),
+              0x80 | ((charcode>>6) & 0x3f),
+              0x80 | (charcode & 0x3f));
+        }
+      }
+      return utf8;
+    }
+    return toUTF8Array(s);
+  };
+
+}();
+
+(function (factory) {
+  if (typeof define === 'function' && define.amd) {
+      define([], factory);
+  } else if (typeof exports === 'object') {
+      module.exports = factory();
+  }
+}(function () {
+    return qrcode;
+}));
+
+
+</script>
+<script>
+(function(){
+"use strict";
+
+/* ===================== PREFECTURE DATA ===================== */
+// name, short, col, row, size(1|2 for Hokkaido), tmax(ライブ取得できない場合のオフライン用フォールバック値,℃), lat, lon
+const PREFS = [
+  ['北海道','北海道',13,1,2,31.0,43.06,141.35],
+  ['青森県','青森',13,3,1,30.0,40.82,140.74],
+  ['岩手県','岩手',14,4,1,30.0,39.70,141.15],
+  ['秋田県','秋田',12,4,1,31.0,39.72,140.10],
+  ['宮城県','宮城',14,5,1,27.0,38.27,140.87],
+  ['山形県','山形',12,5,1,30.0,38.24,140.36],
+  ['福島県','福島',13,6,1,29.0,37.75,140.47],
+  ['新潟県','新潟',12,7,1,31.0,37.90,139.04],
+  ['茨城県','茨城',14,7,1,30.0,36.34,140.45],
+  ['栃木県','栃木',13,7,1,30.0,36.57,139.88],
+  ['群馬県','群馬',12,8,1,32.0,36.39,139.06],
+  ['埼玉県','埼玉',13,8,1,33.0,35.86,139.65],
+  ['千葉県','千葉',15,8,1,31.0,35.60,140.12],
+  ['東京都','東京',14,9,1,31.0,35.69,139.69],
+  ['神奈川県','神奈',13,9,1,32.0,35.45,139.64],
+  ['富山県','富山',11,8,1,34.0,36.70,137.21],
+  ['石川県','石川',10,8,1,33.0,36.59,136.63],
+  ['福井県','福井',10,9,1,35.0,36.06,136.22],
+  ['山梨県','山梨',12,9,1,35.0,35.66,138.57],
+  ['長野県','長野',11,9,1,34.0,36.65,138.18],
+  ['岐阜県','岐阜',10,10,1,36.0,35.42,136.76],
+  ['静岡県','静岡',13,10,1,32.0,34.98,138.38],
+  ['愛知県','愛知',11,10,1,37.0,35.18,136.91],
+  ['三重県','三重',10,11,1,33.0,34.73,136.51],
+  ['滋賀県','滋賀',9,9,1,36.0,35.00,135.87],
+  ['京都府','京都',8,9,1,38.0,35.02,135.76],
+  ['大阪府','大阪',8,10,1,37.0,34.69,135.50],
+  ['兵庫県','兵庫',7,9,1,34.0,34.69,135.18],
+  ['奈良県','奈良',9,10,1,37.0,34.69,135.83],
+  ['和歌山県','和歌',9,11,1,33.0,34.23,135.17],
+  ['鳥取県','鳥取',6,9,1,36.0,35.50,134.24],
+  ['島根県','島根',5,9,1,35.0,35.47,133.05],
+  ['岡山県','岡山',7,10,1,36.0,34.66,133.92],
+  ['広島県','広島',6,10,1,36.0,34.40,132.46],
+  ['山口県','山口',5,10,1,37.0,34.19,131.47],
+  ['徳島県','徳島',8,11,1,36.0,34.07,134.56],
+  ['香川県','香川',7,11,1,36.0,34.34,134.05],
+  ['愛媛県','愛媛',6,11,1,35.0,33.84,132.77],
+  ['高知県','高知',7,12,1,34.0,33.56,133.53],
+  ['福岡県','福岡',4,10,1,36.0,33.61,130.42],
+  ['佐賀県','佐賀',3,11,1,37.0,33.25,130.30],
+  ['長崎県','長崎',2,11,1,36.0,32.75,129.87],
+  ['熊本県','熊本',3,12,1,38.0,32.79,130.74],
+  ['大分県','大分',4,11,1,36.0,33.24,131.61],
+  ['宮崎県','宮崎',4,12,1,32.0,31.91,131.42],
+  ['鹿児島県','鹿児',3,13,1,34.0,31.60,130.56],
+  ['沖縄県','沖縄',1,15,1,32.0,26.21,127.68],
+];
+// 都道府県名 → PREFS配列のindex(ライブ取得した時間帯別データを紐付けるため)
+const PREF_INDEX = {};
+PREFS.forEach((p,i)=>{ PREF_INDEX[p[0]] = i; });
+// 都道府県ごとの時間帯別ライブデータ(取得できたものだけ埋まる。未取得/取得失敗ならnullのまま)
+// { temp:[48], solar:[48]|null, cloud:[48]|null, uv:[48]|null } ※indexは本日0時からの時間オフセット
+let PREFS_HOURLY = PREFS.map(()=>null);
+
+const CAR_COLORS = [
+  {id:"white",  name:"ホワイト", hex:"#F3F3F1", alpha:0.25},
+  {id:"silver", name:"シルバー", hex:"#C6CACD", alpha:0.32},
+  {id:"gray",   name:"グレー",   hex:"#8B9096", alpha:0.42},
+  {id:"yellow", name:"イエロー", hex:"#E4B23C", alpha:0.46},
+  {id:"red",    name:"レッド",   hex:"#B3382C", alpha:0.58},
+  {id:"blue",   name:"ブルー",   hex:"#2E5C8A", alpha:0.65},
+  {id:"green",  name:"グリーン", hex:"#35643F", alpha:0.68},
+  {id:"black",  name:"ブラック", hex:"#1C1C1E", alpha:0.92},
+];
+const CAR_TYPES = [
+  {id:"kei",   name:"軽・コンパクト", greenhouse:1.06, tau:12},
+  {id:"sedan", name:"セダン・標準",   greenhouse:1.00, tau:16},
+  {id:"suv",   name:"SUV・大型",      greenhouse:0.94, tau:20},
+];
+const WEATHERS = [
+  {id:"clear",   name:"晴天",   cloud:1.00, cloudPct:10},
+  {id:"partly",  name:"薄曇り", cloud:0.60, cloudPct:50},
+  {id:"overcast",name:"曇り",   cloud:0.28, cloudPct:85},
+];
+
+const G_CLEAR_MAX = 950;
+const GLASS_FACTOR = 0.70, H_CABIN_LOSS = 16.6, SURF_COUPLING = 0.15;
+const SUNSHADE_CUT = 0.50, CRACK_REDUCTION = 4;
+const EXT_THRESH = [50,65,80];
+const INT_THRESH = [35,45,60];
+const JUST_PARKED_SETTLE_MIN = 5;
+const TIER_META = {
+  safe:{label:"安全",icon:"✓"}, caution:{label:"注意",icon:"!"},
+  warning:{label:"警戒",icon:"⚠"}, danger:{label:"危険",icon:"⛔"},
+};
+
+const METRICS = [
+  {id:"interior", name:"車内",       thresholds:INT_THRESH, seriesKey:"interior", color:"var(--crimson-ink)"},
+  {id:"exterior", name:"車外ボディ", thresholds:EXT_THRESH, seriesKey:"exterior", color:"var(--orange-ink)"},
+];
+function currentMetric(){ return METRICS.find(m=>m.id===state.metric); }
+function metricValue(r){ return state.metric==="interior" ? r.intNow : r.ext; }
+
+let state = {
+  colorId:"red", typeId:"sedan", weatherId:"clear",
+  timeHour:13, tempAdjust:0, wind:2,
+  justParked:true, sunshade:false, crack:false,
+  metric:"interior",
+  weatherTouched:false, // becomes true once the user manually picks 天候, so the live-fetch cloud-cover auto-suggestion stops overriding it
+  windTouched:false, // becomes true once the user manually moves 風速(体感), so the live-fetch wind auto設定はそれ以降上書きしない
+};
+let selectedPref = null;
+let notifyPermission = (typeof Notification !== "undefined") ? Notification.permission : "unsupported";
+let lastTierByPref = {};
+
+/* ===================== PHYSICS ===================== */
+function dayOfYear(d){ const start=new Date(d.getFullYear(),0,1); return Math.floor((d-start)/86400000)+1; }
+function solarElevationDeg(lat, doy, localHour){
+  const decl = 23.45*Math.sin(2*Math.PI*(284+doy)/365);
+  const hourAngle = 15*(localHour-12);
+  const latR=lat*Math.PI/180, declR=decl*Math.PI/180, haR=hourAngle*Math.PI/180;
+  const sinElev = Math.sin(latR)*Math.sin(declR)+Math.cos(latR)*Math.cos(declR)*Math.cos(haR);
+  return Math.asin(Math.max(-1,Math.min(1,sinElev)))*180/Math.PI;
+}
+function irradiance(elevDeg, cloud){
+  const s = Math.sin(elevDeg*Math.PI/180);
+  if (s<=0) return 0;
+  const horizonSoften = elevDeg<12 ? (elevDeg/12) : 1;
+  return G_CLEAR_MAX*s*horizonSoften*cloud;
+}
+// 対流熱伝達係数 h ≒ 5.7 + 3.8v (Duffie & Beckman型の簡易近似式。vは車体付近の風速m/s)
+const STEFAN_BOLTZMANN = 5.67e-8;
+const SURFACE_EMISSIVITY = 0.90; // 塗装面の長波放射率(可視の色にはほぼ依存しない)
+function hCombined(windMs){ return 5.7 + 3.8*Math.max(0,windMs); }
+// 晴天時は地表から見た「実効的な空の温度」は気温より低くなる(放射冷却)。
+// 雲量が多いほどその効果は弱まる、という簡易近似(cloudPctは0-100%)。
+function skyTempC(tempC, cloudPct){
+  const cloudFrac = Math.max(0, Math.min(100, cloudPct==null?10:cloudPct))/100;
+  return tempC - 6*(1-cloudFrac);
+}
+// 車体表面温度の推定:「吸収した日射 = 対流で逃げる熱 + 長波放射で逃げる熱」という
+// 熱収支がつり合う表面温度を二分法で解く。対流のみの単純な式(表面温度=気温+αI/h)は
+// 高温になるほど実際より過大な値になりがちだが、放射損失の項も加えることで実測に近づく。
+function surfaceTempBisect(tempC, solarWm2, windMs, alpha, cloudPct){
+  const airK = tempC + 273.15;
+  const skyK = skyTempC(tempC, cloudPct) + 273.15;
+  const h = hCombined(windMs);
+  const absorbed = alpha * Math.max(0, solarWm2||0);
+  let lo = airK, hi = airK + 90;
+  for (let i=0;i<40;i++){
+    const mid = (lo+hi)/2;
+    const loss = h*(mid-airK) + SURFACE_EMISSIVITY*STEFAN_BOLTZMANN*(Math.pow(mid,4)-Math.pow(skyK,4));
+    if (loss < absorbed) lo = mid; else hi = mid;
+  }
+  return (lo+hi)/2 - 273.15;
+}
+function cabinEq(G,carType,sunshade,dExtEq){
+  const glass = GLASS_FACTOR*(sunshade?(1-SUNSHADE_CUT):1);
+  return (G*glass*carType.greenhouse)/H_CABIN_LOSS + SURF_COUPLING*dExtEq;
+}
+function tierFor(v,th){ if(v<th[0])return"safe"; if(v<th[1])return"caution"; if(v<th[2])return"warning"; return"danger"; }
+function tierRank(t){ return {safe:0,caution:1,warning:2,danger:3}[t]; }
+function worstTier(a,b){ return tierRank(a)>=tierRank(b)?a:b; }
+function fmtHour(h){ const hh=Math.floor(h), mm=Math.round((h-hh)*60); return String(hh).padStart(2,"0")+":"+String(mm).padStart(2,"0"); }
+function fmt1(v){ return (Math.round(v*10)/10).toFixed(1); }
+
+// 都道府県のindex/太陽高度から、気温・日射量・雲量を1か所で解決する。
+// ライブ取得できていて「天候」を手動操作していない間はライブ値を優先し、
+// 取得不可・手動操作後は太陽高度からの近似式(既存モデル)にフォールバックする。
+function hourlyAt(prefIdx, hourFloat){
+  const h = PREFS_HOURLY[prefIdx];
+  if (!h || !h.temp || !h.temp.length) return null;
+  const n = h.temp.length;
+  const clamped = Math.max(0, Math.min(n-1, hourFloat));
+  const i0 = Math.floor(clamped), i1 = Math.min(n-1, i0+1);
+  const frac = clamped - i0;
+  function interp(arr){
+    if (!arr) return null;
+    const a = arr[i0], b = arr[i1];
+    if (typeof a !== "number" || typeof b !== "number") return null;
+    return a + (b-a)*frac;
+  }
+  const temp = interp(h.temp);
+  if (temp==null) return null;
+  return { temp, solar: interp(h.solar), cloud: interp(h.cloud), uv: interp(h.uv) };
+}
+function resolveConditions(pref, hourFloat){
+  const idx = PREF_INDEX[pref[0]];
+  const doy = dayOfYear(new Date());
+  const hourOfDay = ((hourFloat%24)+24)%24;
+  const elev = solarElevationDeg(pref[6], doy, hourOfDay);
+  const weather = WEATHERS.find(w=>w.id===state.weatherId);
+  const live = hourlyAt(idx, hourFloat);
+  const baseTemp = (live && typeof live.temp === "number") ? live.temp : pref[5];
+  const ambient = baseTemp + state.tempAdjust;
+  let G, cloudPct;
+  if (state.weatherTouched || !live || live.solar==null){
+    G = irradiance(elev, weather.cloud);
+    cloudPct = weather.cloudPct;
+  } else {
+    G = Math.max(0, live.solar);
+    cloudPct = (live.cloud!=null) ? live.cloud : weather.cloudPct;
+  }
+  return { ambient, elev, G, cloudPct, uv: live ? live.uv : null };
+}
+function uvTier(uv){
+  if (uv==null) return "—";
+  if (uv<3) return "弱い";
+  if (uv<6) return "中程度";
+  if (uv<8) return "強い";
+  if (uv<11) return "非常に強い";
+  return "極端";
+}
+
+// current ambient + elevation + ext/int for one prefecture row, given global controls
+function computeNow(pref){
+  const color = CAR_COLORS.find(c=>c.id===state.colorId);
+  const type = CAR_TYPES.find(t=>t.id===state.typeId);
+  const {ambient, elev, G, cloudPct} = resolveConditions(pref, state.timeHour);
+  const ext = surfaceTempBisect(ambient, G, state.wind, color.alpha, cloudPct);
+  const dExt = ext - ambient;
+  let intEq = ambient + cabinEq(G, type, state.sunshade, dExt);
+  if (state.crack) intEq = Math.max(ambient+2, intEq - CRACK_REDUCTION);
+  let intNow = intEq;
+  if (state.justParked){
+    const decay = Math.exp(-JUST_PARKED_SETTLE_MIN/type.tau);
+    intNow = intEq - (intEq-ambient)*decay;
+  }
+  return {ambient, elev, G, ext, intNow, intEq};
+}
+
+// 0-100 score from a temperature + its own tier thresholds [caution,warning,danger],
+// for the tile heatmap gradient. Works for either 車内(interior) or 車外(exterior)
+// by passing that metric's own threshold triplet.
+function heatScore(temp, thresholds){
+  const th = thresholds || INT_THRESH;
+  const stops = [[th[0]-10,0],[th[0],20],[th[1],50],[th[2],80],[th[2]+15,100]];
+  if (temp<=stops[0][0]) return 0;
+  if (temp>=stops[stops.length-1][0]) return 100;
+  for(let i=0;i<stops.length-1;i++){
+    const [t0,s0]=stops[i], [t1,s1]=stops[i+1];
+    if (temp>=t0 && temp<=t1) return s0 + (temp-t0)/(t1-t0)*(s1-s0);
+  }
+  return 0;
+}
+function colorForScore(v){
+  const stops = [[0,[28,59,99]],[25,[47,166,160]],[50,[255,194,75]],[75,[255,138,61]],[100,[255,47,94]]];
+  let a=stops[0], b=stops[stops.length-1];
+  for(let i=0;i<stops.length-1;i++){ if(v>=stops[i][0] && v<=stops[i+1][0]){ a=stops[i]; b=stops[i+1]; break; } }
+  const t=(v-a[0])/(b[0]-a[0]||1);
+  const c=a[1].map((c0,i)=>Math.round(c0+(b[1][i]-c0)*t));
+  return `rgb(${c[0]},${c[1]},${c[2]})`;
+}
+function riskMeta(v){
+  if(v<20) return {label:"安全", icon:"✓", color:"var(--r-0)"};
+  if(v<40) return {label:"やや注意", icon:"◐", color:"var(--r-25)"};
+  if(v<60) return {label:"注意", icon:"!", color:"var(--r-50)"};
+  if(v<80) return {label:"警戒", icon:"▲", color:"var(--r-75)"};
+  return {label:"危険", icon:"⛔", color:"var(--r-100)"};
+}
+function renderScaleGuide(metric){
+  const th = metric.thresholds;
+  const lead = document.getElementById("scaleGuideLead");
+  if (lead) lead.textContent = `${metric.name}の推定温度を0〜100の指数に変換し、色で示しています。数値そのものより、下記5段階の感覚で見てください。`;
+  const levels = document.getElementById("scaleLevels");
+  if (!levels) return;
+  levels.innerHTML = `
+    <div class="scale-level"><span class="dot" style="background:var(--r-0)"></span><b>✓ 安全</b>&nbsp;(${metric.name}目安 ${th[0]-10}℃未満)</div>
+    <div class="scale-level"><span class="dot" style="background:var(--r-25)"></span><b>◐ やや注意</b>&nbsp;(${th[0]-10}〜${th[0]}℃)</div>
+    <div class="scale-level"><span class="dot" style="background:var(--r-50)"></span><b>! 注意</b>&nbsp;(${th[0]}〜${th[1]}℃)</div>
+    <div class="scale-level"><span class="dot" style="background:var(--r-75)"></span><b>▲ 警戒</b>&nbsp;(${th[1]}〜${th[2]}℃)</div>
+    <div class="scale-level"><span class="dot" style="background:var(--r-100)"></span><b>⛔ 危険</b>&nbsp;(${th[2]}℃以上・通知の基準)</div>
+  `;
+}
+function adviceFor(tier, name, metricId){
+  if (metricId==="exterior"){
+    if(tier==="safe") return `${name}の現在の設定では、車体表面が大きく熱くなる心配は少ない見込みです。`;
+    if(tier==="caution") return `${name}では車体表面がやや熱くなる見込みです。ボンネットや屋根に長時間触れる作業は避けましょう。`;
+    if(tier==="warning") return `${name}では車体表面がかなり熱くなる見込みです。素手で長く触れるとやけどの恐れがあるほか、樹脂パーツの変形にも注意してください。`;
+    return `${name}は車体表面が非常に高温になる見込みです。素手で触れるとすぐにやけどする危険があります。可能な限り日陰・屋根付きの駐車を選んでください。`;
+  }
+  if(tier==="safe") return `${name}の現在の設定では、車内・車外ともに大きな心配は少ない見込みです。念のため長時間の放置は避けましょう。`;
+  if(tier==="caution") return `${name}ではやや温度が上がる見込みです。短時間の駐車でも、飲料・電子機器・スプレー缶などの車内放置には注意してください。`;
+  if(tier==="warning") return `${name}では車内が高温になりやすい見込みです。日陰・屋根付きの駐車を優先し、人やペットを車内に残さないでください。`;
+  return `${name}は非常に高温になる見込みです。人やペット・電子機器を車内に残すのは危険です。可能な限り屋根のある場所に駐車してください。`;
+}
+
+/* ===================== TILE GRID ===================== */
+const mapGrid = document.getElementById("mapGrid");
+const tileEls = {};
+const COMPACT_BREAKPOINT = 760;
+function isCompactView(){ return window.innerWidth <= COMPACT_BREAKPOINT; }
+let gridMode = null;
+function buildNationalGrid(){
+  const mode = isCompactView() ? "compact" : "geo";
+  if (mode===gridMode) return false;
+  gridMode = mode;
+  mapGrid.innerHTML = "";
+  Object.keys(tileEls).forEach(k=>delete tileEls[k]);
+  mapGrid.classList.toggle("compact", mode==="compact");
+  PREFS.forEach(p=>{
+    const el = document.createElement("div");
+    if (mode==="geo"){
+      el.className = "tile"+(p[4]===2?" hokkaido":"");
+      el.style.gridColumn = `${p[2]} / span ${p[4]}`;
+      el.style.gridRow = `${p[3]} / span ${p[4]}`;
+    } else {
+      el.className = "tile compact-tile";
+    }
+    el.textContent = p[1];
+    el.title = p[0];
+    el.tabIndex = 0;
+    el.setAttribute("role","button");
+    el.setAttribute("aria-label", p[0]);
+    el.onclick = ()=> selectPref(p[0]);
+    el.onkeydown = e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); selectPref(p[0]); } };
+    mapGrid.appendChild(el);
+    tileEls[p[0]] = el;
+  });
+  return true;
+}
+buildNationalGrid();
+let resizeTimer=null;
+window.addEventListener("resize", ()=>{
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(()=>{ if(buildNationalGrid()) updateAll(); }, 200);
+});
+
+/* ===================== GAUGE ===================== */
+function buildGaugeSvg(pct, colorVar){
+  const r=64, c=74, stroke=10, circ=2*Math.PI*r;
+  const dash = Math.max(0.001, Math.min(1,pct/100)) * circ;
+  return `<svg width="148" height="148" viewBox="0 0 148 148">
+    <circle class="bg" cx="${c}" cy="${c}" r="${r}"/>
+    <circle class="fg" cx="${c}" cy="${c}" r="${r}" stroke="${colorVar}" stroke-dasharray="${dash} ${circ}"/>
+  </svg>`;
+}
+
+/* ===================== STATS ===================== */
+function renderStats(){
+  const rows = PREFS.map(p=>({p, r:computeNow(p)}));
+  const metric = currentMetric();
+  const avg = rows.reduce((s,x)=>s+metricValue(x.r),0)/rows.length;
+  const hottest = rows.reduce((a,b)=> metricValue(b.r)>metricValue(a.r) ? b:a);
+  const dangerCount = rows.filter(x=> tierFor(metricValue(x.r), metric.thresholds)==="danger").length;
+  const color = CAR_COLORS.find(c=>c.id===state.colorId);
+
+  const stats = document.getElementById("stats");
+  stats.innerHTML = `
+    <div class="stat-card">
+      <div class="label">全国 ${metric.name}推定の平均</div>
+      <div class="value">${fmt1(avg)}℃</div>
+      <div class="sub">47都道府県の単純平均</div>
+    </div>
+    <div class="stat-card ${tierFor(metricValue(hottest.r), metric.thresholds)==="danger"?"danger":"warn"}">
+      <div class="label">最も高い見込み</div>
+      <div class="value">${hottest.p[0]}</div>
+      <div class="sub">${metric.name} ${fmt1(metricValue(hottest.r))}℃ 相当</div>
+    </div>
+    <div class="stat-card ${dangerCount>0?"danger":""}">
+      <div class="label">危険域(${metric.thresholds[2]}℃〜)の県数</div>
+      <div class="value">${dangerCount}/47</div>
+      <div class="sub">${metric.name}・この設定・時刻での見込み</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">現在の車設定</div>
+      <div class="value" style="font-size:18px;">${color.name}</div>
+      <div class="sub">${CAR_TYPES.find(t=>t.id===state.typeId).name} / ${WEATHERS.find(w=>w.id===state.weatherId).name}</div>
+    </div>
+  `;
+  return rows;
+}
+
+/* ===================== TILE COLORS + TABLE ===================== */
+function renderTilesAndTable(rows){
+  const metric = currentMetric();
+  rows.forEach(({p,r})=>{
+    const el = tileEls[p[0]];
+    if (!el) return;
+    const score = heatScore(metricValue(r), metric.thresholds);
+    el.style.background = colorForScore(score);
+    el.classList.toggle("hot", score>=80);
+    el.classList.toggle("selected", selectedPref===p[0]);
+  });
+
+  document.getElementById("thExt").textContent = "車外"+(metric.id==="exterior"?" ▾":"");
+  document.getElementById("thInt").textContent = "車内"+(metric.id==="interior"?" ▾":"");
+  const tbody = document.getElementById("prefTableBody");
+  tbody.innerHTML = "";
+  const extCls = metric.id==="exterior" ? ' style="color:var(--text); font-weight:700;"' : "";
+  const intCls = metric.id==="interior" ? ' style="color:var(--text); font-weight:700;"' : "";
+  [...rows].sort((a,b)=>metricValue(b.r)-metricValue(a.r)).forEach(({p,r})=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${p[0]}</td><td>${fmt1(r.ambient)}℃</td><td>${Math.round(Math.max(0,r.elev))}°</td><td${extCls}>${fmt1(r.ext)}℃</td><td${intCls}>${fmt1(r.intNow)}℃</td>`;
+    tr.onclick = ()=> selectPref(p[0]);
+    tbody.appendChild(tr);
+  });
+}
+
+document.getElementById("prefTableToggle").addEventListener("click", ()=>{
+  const w = document.getElementById("prefTableWrap");
+  w.classList.toggle("open");
+  document.getElementById("prefTableToggle").textContent = w.classList.contains("open") ? "表を閉じる ▴" : "全47都道府県を表で見る ▾";
+});
+document.getElementById("guideToggle").addEventListener("click", ()=>{
+  const w = document.getElementById("guideBody");
+  w.classList.toggle("open");
+  document.getElementById("guideToggle").textContent = w.classList.contains("open") ? "使い方を閉じる ▴" : "使い方を見る ▾";
+});
+
+/* ===================== FORECAST CHART (per selected pref) ===================== */
+const CHART_W=560, CHART_H=220, PAD_L=32, PAD_R=12, PAD_T=12, PAD_B=24;
+function buildForecastSeries(pref, hours, stepMin){
+  const type = CAR_TYPES.find(t=>t.id===state.typeId);
+  const color = CAR_COLORS.find(c=>c.id===state.colorId);
+  const steps = Math.round(hours*60/stepMin);
+  const series = [];
+  let cabin = null;
+  for (let i=0;i<=steps;i++){
+    const t = state.timeHour + (i*stepMin)/60; // 本日0時からの連続時刻(ライブ時間帯データの参照に使う)
+    const {ambient, G, cloudPct} = resolveConditions(pref, t);
+    const extSurf = surfaceTempBisect(ambient, G, state.wind, color.alpha, cloudPct);
+    const dExtEq = extSurf - ambient;
+    let cabEq = ambient + cabinEq(G, type, state.sunshade, dExtEq);
+    if (state.crack) cabEq = Math.max(ambient+2, cabEq - CRACK_REDUCTION);
+    if (i===0){
+      if (state.justParked){
+        const decay = Math.exp(-JUST_PARKED_SETTLE_MIN/type.tau);
+        cabin = cabEq - (cabEq-ambient)*decay;
+      } else cabin = cabEq;
+    } else {
+      const decay = Math.exp(-stepMin/type.tau);
+      cabin = cabEq - (cabEq-cabin)*decay;
+    }
+    series.push({t:((t%24)+24)%24, ambient, exterior:extSurf, interior:cabin});
+  }
+  return series;
+}
+function buildLineChartSvg(series){
+  const metric = currentMetric();
+  const plotW=CHART_W-PAD_L-PAD_R, plotH=CHART_H-PAD_T-PAD_B;
+  const allVals = series.flatMap(p=>[p.ambient,p.exterior,p.interior]);
+  let yMin=Math.floor((Math.min(...allVals)-4)/10)*10, yMax=Math.ceil((Math.max(...allVals)+4)/10)*10;
+  if (yMax-yMin<20) yMax=yMin+20;
+  const x = i => PAD_L + (i/(series.length-1))*plotW;
+  const y = v => PAD_T + plotH - ((v-yMin)/(yMax-yMin))*plotH;
+  let svg = `<svg viewBox="0 0 ${CHART_W} ${CHART_H}" role="img" aria-label="車外・車内・気温の8時間予測グラフ(${metric.name}のしきい値を表示)">`;
+  const th = metric.thresholds;
+  const bands = [{from:th[2],to:yMax,color:"var(--crimson)"},{from:th[1],to:th[2],color:"var(--orange)"}];
+  bands.forEach(b=>{ const top=y(Math.min(b.to,yMax)), bot=y(Math.max(b.from,yMin)); if(bot>top) svg+=`<rect x="${PAD_L}" y="${top}" width="${plotW}" height="${bot-top}" fill="${b.color}" opacity="0.08"/>`; });
+  const step=(yMax-yMin)/4;
+  for(let v=yMin; v<=yMax+0.01; v+=step){
+    svg += `<line x1="${PAD_L}" x2="${CHART_W-PAD_R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line-soft)" stroke-width="1"/>`;
+    svg += `<text x="${PAD_L-6}" y="${y(v)+3}" text-anchor="end" font-size="9" fill="var(--text-faint)" font-family="var(--font-mono)">${Math.round(v)}</text>`;
+  }
+  series.forEach((p,i)=>{ const showEvery=Math.max(1,Math.round(series.length/8)); if(i%showEvery===0) svg+=`<text x="${x(i)}" y="${CHART_H-6}" text-anchor="middle" font-size="9" fill="var(--text-faint)" font-family="var(--font-mono)">${fmtHour(p.t)}</text>`; });
+  function path(key,dash){ let d=""; series.forEach((p,i)=>{ d+=(i===0?"M":"L")+x(i).toFixed(1)+" "+y(p[key]).toFixed(1)+" "; }); const color= key==="ambient"?"var(--text-faint)":key==="exterior"?"var(--orange-ink)":"var(--crimson-ink)"; return `<path d="${d}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ${dash?'stroke-dasharray="5 4"':""}/>`; }
+  svg += path("ambient",true) + path("exterior",false) + path("interior",false);
+  const last=series[series.length-1], li=series.length-1;
+  [["exterior","var(--orange-ink)"],["interior","var(--crimson-ink)"]].forEach(([k,color])=>{
+    svg += `<circle cx="${x(li)}" cy="${y(last[k])}" r="3" fill="${color}"/>`;
+    svg += `<text x="${x(li)-4}" y="${y(last[k])-7}" text-anchor="end" font-size="10" font-weight="700" fill="${color}" font-family="var(--font-mono)">${fmt1(last[k])}°</text>`;
+  });
+  svg += `<rect id="hoverCatch" x="${PAD_L}" y="${PAD_T}" width="${plotW}" height="${plotH}" fill="transparent"/>`;
+  svg += `<line id="crosshair" x1="0" x2="0" y1="${PAD_T}" y2="${PAD_T+plotH}" stroke="var(--text-faint)" stroke-width="1" opacity="0"/>`;
+  svg += `</svg>`;
+  return {svg,x};
+}
+
+/* ===================== DETAIL PANEL ===================== */
+function renderDetail(){
+  const detail = document.getElementById("detail");
+  if (!selectedPref){
+    detail.innerHTML = `<div class="detail-empty"><p><b>都道府県のタイル</b>、または表の行を選ぶと、ここに車外・車内の推定温度とこれからの見通しが表示されます。</p></div>`;
+    return;
+  }
+  const pref = PREFS.find(p=>p[0]===selectedPref);
+  const r = computeNow(pref);
+  const metric = currentMetric();
+  const score = heatScore(metricValue(r), metric.thresholds);
+  const meta = riskMeta(score);
+  const tier = tierFor(metricValue(r), metric.thresholds);
+  const color = CAR_COLORS.find(c=>c.id===state.colorId);
+  const type = CAR_TYPES.find(t=>t.id===state.typeId);
+  const weather = WEATHERS.find(w=>w.id===state.weatherId);
+  const otherLine = metric.id==="interior"
+    ? `車外ボディ推定 ${fmt1(r.ext)}℃`
+    : `車内推定 ${fmt1(r.intNow)}℃`;
+  const liveNow = hourlyAt(PREF_INDEX[pref[0]], state.timeHour);
+  const uvChip = (liveNow && liveNow.uv!=null)
+    ? `<div class="factor"><span class="ic">🔆</span>UV指数 ${fmt1(liveNow.uv)}(${uvTier(liveNow.uv)})</div>` : "";
+
+  detail.innerHTML = `
+    <div class="gauge-col">
+      <div class="gauge">${buildGaugeSvg(score, meta.color)}<div class="num"><div class="n">${fmt1(metricValue(r))}</div><div class="u">℃・${metric.name}</div></div></div>
+      <div class="risk-label" style="background:color-mix(in srgb, ${meta.color} 22%, transparent); color:${meta.color};">${meta.icon} ${meta.label}</div>
+    </div>
+    <div class="detail-body">
+      <h3>${pref[0]}</h3>
+      <span class="region-tag">${otherLine} ・ 気温目安 ${fmt1(r.ambient)}℃ ・ 太陽高度 ${Math.round(Math.max(0,r.elev))}°</span>
+      <div class="factors">
+        <div class="factor"><span class="ic">🎨</span>${color.name}</div>
+        <div class="factor"><span class="ic">🚘</span>${type.name}</div>
+        <div class="factor"><span class="ic">☁️</span>${weather.name}</div>
+        <div class="factor"><span class="ic">🕐</span>${fmtHour(state.timeHour)}時点</div>
+        ${uvChip}
+      </div>
+      <div class="advice">${adviceFor(tier, pref[0], metric.id)}</div>
+
+      <div class="detail-extra open">
+        <div>
+          <div class="detail-sub-title">📈 これからの見通し(8時間)</div>
+          <div class="chart-wrap" id="chartWrap"></div>
+          <div class="legend2">
+            <span class="legend2-item"><span class="legend2-swatch dashed" style="border-color:var(--text-faint)"></span>気温</span>
+            <span class="legend2-item"><span class="legend2-swatch" style="border-color:var(--orange-ink)"></span>車外ボディ</span>
+            <span class="legend2-item"><span class="legend2-swatch" style="border-color:var(--crimson-ink)"></span>車内</span>
+          </div>
+          <div class="forecast-note" id="forecastNote"></div>
+        </div>
+        <div>
+          <div class="detail-sub-title">🎨 同じ状況で色が違うと?</div>
+          <div id="compareRows"></div>
+        </div>
+        <div class="notify-row">
+          <button class="btn" id="notifyBtn" type="button">この地域の通知をブラウザで許可</button>
+          <span style="font-size:12.5px; color:var(--text-faint);" id="notifyStatus"></span>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById("notifyBtn").addEventListener("click", requestNotify);
+  updateNotifyStatus();
+  renderForecastFor(pref);
+  renderComparisonFor(pref);
+}
+
+function renderForecastFor(pref){
+  const series = buildForecastSeries(pref, 8, 15);
+  const wrap = document.getElementById("chartWrap");
+  const {svg,x} = buildLineChartSvg(series);
+  wrap.innerHTML = svg + '<div class="chart-tooltip" id="chartTooltip"></div>';
+  const svgEl = wrap.querySelector("svg");
+  const catcher = wrap.querySelector("#hoverCatch");
+  const crosshair = wrap.querySelector("#crosshair");
+  const tooltip = document.getElementById("chartTooltip");
+  function onMove(evt){
+    const rect = svgEl.getBoundingClientRect();
+    const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+    const relX = (clientX-rect.left)/rect.width*CHART_W;
+    let idx = Math.round(((relX-PAD_L)/(CHART_W-PAD_L-PAD_R))*(series.length-1));
+    idx = Math.max(0, Math.min(series.length-1, idx));
+    const p = series[idx];
+    crosshair.setAttribute("x1", x(idx)); crosshair.setAttribute("x2", x(idx)); crosshair.setAttribute("opacity","1");
+    tooltip.innerHTML = `<b>${fmtHour(p.t)}</b><br>気温 ${fmt1(p.ambient)}℃<br>車外 ${fmt1(p.exterior)}℃<br>車内 ${fmt1(p.interior)}℃`;
+    tooltip.style.left = ((x(idx)/CHART_W)*rect.width)+"px";
+    tooltip.style.top = "0px";
+    tooltip.classList.add("show");
+  }
+  function onLeave(){ crosshair.setAttribute("opacity","0"); tooltip.classList.remove("show"); }
+  catcher.addEventListener("mousemove", onMove);
+  catcher.addEventListener("touchmove", onMove, {passive:true});
+  catcher.addEventListener("mouseleave", onLeave);
+  catcher.addEventListener("touchend", onLeave);
+
+  let msg="";
+  const metric = currentMetric();
+  const seriesKey = metric.seriesKey;
+  const startTier = tierFor(series[0][seriesKey], metric.thresholds);
+  const found = series.find((p,i)=> i>0 && tierRank(tierFor(p[seriesKey],metric.thresholds)) > tierRank(startTier));
+  if (found){ msg = `このままだと <b>${fmtHour(found.t)}頃</b> に${metric.name}が「${TIER_META[tierFor(found[seriesKey],metric.thresholds)].label}」域(${fmt1(found[seriesKey])}℃)に達する見込みです。`; }
+  else if (startTier!=="safe"){ msg = `現在の設定では、この8時間は${metric.name}がずっと「${TIER_META[startTier].label}」域以上の見込みです。`; }
+  else { msg = `この8時間は${metric.name}が「安全」域を維持する見込みです。`; }
+  document.getElementById("forecastNote").innerHTML = msg;
+}
+
+function renderComparisonFor(pref){
+  const {ambient, G, cloudPct} = resolveConditions(pref, state.timeHour);
+  const rows = CAR_COLORS.map(c=>({...c, temp: surfaceTempBisect(ambient, G, state.wind, c.alpha, cloudPct)})).sort((a,b)=>b.temp-a.temp);
+  const maxT = Math.max(...rows.map(r=>r.temp), ambient+5);
+  const minT = Math.min(ambient, ...rows.map(r=>r.temp));
+  const container = document.getElementById("compareRows");
+  container.innerHTML = "";
+  rows.forEach(r=>{
+    const pct = Math.max(4, ((r.temp-minT)/(maxT-minT||1))*100);
+    const row = document.createElement("div");
+    row.className = "bar-row"+(r.id===state.colorId?" selected":"");
+    row.innerHTML = `<div class="bar-row-name">${r.name}</div><div class="bar-track"><div class="bar-fill" style="width:${pct}%; background:${r.hex}; box-shadow:inset 0 0 0 1.5px var(--text-faint);"></div></div><div class="bar-row-value">${fmt1(r.temp)}℃</div>`;
+    container.appendChild(row);
+  });
+}
+
+function requestNotify(){
+  if (typeof Notification === "undefined"){ alert("このブラウザは通知に対応していません。"); return; }
+  Notification.requestPermission().then(p=>{ notifyPermission=p; updateNotifyStatus(); });
+}
+function updateNotifyStatus(){
+  const el = document.getElementById("notifyStatus");
+  if (!el) return;
+  el.textContent = notifyPermission==="granted" ? "通知は有効です" : notifyPermission==="denied" ? "通知はブロックされています" : "未設定";
+}
+
+function selectPref(name){
+  selectedPref = name;
+  // snapshot the current tier so selecting a already-hot prefecture doesn't
+  // itself fire a toast — only a further rise while it stays selected does
+  const pref = PREFS.find(p=>p[0]===name);
+  lastTierByPref[name] = tierFor(metricValue(computeNow(pref)), currentMetric().thresholds);
+  renderDetail();
+  renderTilesAndTable(lastRows);
+  document.getElementById("detail").scrollIntoView({behavior:"smooth", block:"nearest"});
+}
+
+/* ===================== TOASTS / ALERTS ===================== */
+function showToast(text){
+  const wrap = document.getElementById("toastWrap");
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.innerHTML = text;
+  wrap.appendChild(el);
+  setTimeout(()=>{ el.style.transition="opacity .3s"; el.style.opacity="0"; setTimeout(()=>el.remove(),320); }, 5000);
+}
+// アラートは「選択中の都道府県」1件だけを対象にする(全国一斉に条件を変えると
+// 47件同時に通知が飛んでしまうため)。上部の地図で色を見れば全国の状況は
+// 一目でわかるので、通知は自分が選んだ地域の変化だけを知らせれば十分。
+function checkAlerts(rows){
+  if (!selectedPref) return;
+  const row = rows.find(x=>x.p[0]===selectedPref);
+  if (!row) return;
+  const {p,r} = row;
+  const metric = currentMetric();
+  const val = metricValue(r);
+  const tier = tierFor(val, metric.thresholds);
+  const prev = lastTierByPref[p[0]] || "safe";
+  if (tierRank(tier) > tierRank(prev) && (tier==="warning"||tier==="danger")){
+    showToast(`<b>${p[0]}</b>: ${metric.name}推定 ${fmt1(val)}℃ ─ 「${TIER_META[tier].label}」域`);
+    if (notifyPermission==="granted"){ try{ new Notification("陽だまりウォッチ: "+p[0], {body:`${metric.name}推定 ${fmt1(val)}℃ ─ ${TIER_META[tier].label}域`}); }catch(e){} }
+  }
+  lastTierByPref[p[0]] = tier;
+}
+
+/* ===================== CONTROLS WIRING ===================== */
+const colorSeg = document.getElementById("colorSeg");
+CAR_COLORS.forEach(c=>{
+  const btn = document.createElement("button");
+  btn.type="button"; btn.className="color-opt"+(c.id===state.colorId?" active":"");
+  btn.innerHTML = `<span class="dot" style="background:${c.hex}"></span><span class="nm">${c.name}</span>`;
+  btn.addEventListener("click", ()=>{ state.colorId=c.id; refreshColorSeg(); updateAll(); });
+  colorSeg.appendChild(btn);
+});
+function refreshColorSeg(){
+  [...colorSeg.children].forEach((b,i)=> b.classList.toggle("active", CAR_COLORS[i].id===state.colorId));
+  const c = CAR_COLORS.find(x=>x.id===state.colorId);
+  document.getElementById("colorAlphaLabel").textContent = "日射吸収率 "+Math.round(c.alpha*100)+"%";
+}
+function buildSeg(container, items, selectedId, onPick){
+  container.innerHTML = "";
+  items.forEach(it=>{
+    const btn = document.createElement("button");
+    btn.type="button"; btn.textContent=it.name;
+    btn.classList.toggle("active", it.id===selectedId);
+    btn.addEventListener("click", ()=> onPick(it.id));
+    container.appendChild(btn);
+  });
+}
+function refreshSeg(container, items, selectedId){ [...container.children].forEach((b,i)=> b.classList.toggle("active", items[i].id===selectedId)); }
+buildSeg(document.getElementById("typeSeg"), CAR_TYPES, state.typeId, id=>{ state.typeId=id; refreshSeg(document.getElementById("typeSeg"),CAR_TYPES,id); updateAll(); });
+buildSeg(document.getElementById("weatherSeg"), WEATHERS, state.weatherId, id=>{ state.weatherId=id; state.weatherTouched=true; refreshSeg(document.getElementById("weatherSeg"),WEATHERS,id); updateAll(); });
+buildSeg(document.getElementById("metricSeg"), METRICS, state.metric, id=>{
+  state.metric = id;
+  refreshSeg(document.getElementById("metricSeg"), METRICS, id);
+  // switching metric changes the tier basis for the selected prefecture —
+  // re-snapshot it so the switch itself never fires a toast
+  if (selectedPref){
+    const pref = PREFS.find(p=>p[0]===selectedPref);
+    lastTierByPref[selectedPref] = tierFor(metricValue(computeNow(pref)), currentMetric().thresholds);
+  }
+  updateAll();
+});
+
+document.getElementById("timeSlider").addEventListener("input", e=>{ state.timeHour=parseFloat(e.target.value); updateAll(); });
+document.getElementById("adjSlider").addEventListener("input", e=>{ state.tempAdjust=parseFloat(e.target.value); updateAll(); });
+document.getElementById("windSlider").addEventListener("input", e=>{ state.wind=parseFloat(e.target.value); state.windTouched=true; updateAll(); });
+document.getElementById("justParkedToggle").addEventListener("change", e=>{ state.justParked=e.target.checked; updateAll(); });
+document.getElementById("sunshadeToggle").addEventListener("change", e=>{ state.sunshade=e.target.checked; updateAll(); });
+document.getElementById("crackToggle").addEventListener("change", e=>{ state.crack=e.target.checked; updateAll(); });
+document.getElementById("advToggle").addEventListener("click", ()=>{
+  const b=document.getElementById("advBody"), chev=document.getElementById("advChevron");
+  b.classList.toggle("open"); chev.style.transform = b.classList.contains("open") ? "rotate(180deg)" : "";
+});
+
+/* ===================== THEME TOGGLE (黒基調/白基調) ===================== */
+const THEME_KEY = "hidamari-theme";
+function applyTheme(theme){
+  if (theme === "light") document.documentElement.setAttribute("data-theme","light");
+  else document.documentElement.removeAttribute("data-theme");
+  const btn = document.getElementById("themeToggle");
+  if (btn) btn.innerHTML = theme==="light"
+    ? `☀️ <span class="tt-label">白基調</span>`
+    : `🌙 <span class="tt-label">黒基調</span>`;
+}
+let currentTheme = "dark";
+try{
+  const stored = localStorage.getItem(THEME_KEY);
+  if (stored==="light" || stored==="dark") currentTheme = stored;
+}catch(e){}
+applyTheme(currentTheme);
+document.getElementById("themeToggle").addEventListener("click", ()=>{
+  currentTheme = currentTheme==="light" ? "dark" : "light";
+  applyTheme(currentTheme);
+  try{ localStorage.setItem(THEME_KEY, currentTheme); }catch(e){}
+});
+
+/* ===================== LIVE WEATHER: Open-Meteo (気象庁 GSM/MSM) ===================== */
+// このファイルを開いているブラウザから直接 api.open-meteo.com を呼び出します。
+// claude.ai の Artifact リンクではセキュリティ上の理由で外部通信が禁止されているため、
+// このライブ取得版は「ダウンロードして使うファイル」として配布しています
+// (ローカルで開く / GitHub Pages 等に自分でホストする、どちらでも動作します)。
+const WEATHER_SOURCE_LABEL = "Open-Meteo / 気象庁 GSM・MSM";
+let weatherFetchState = { status:"idle", updatedAt:null, note:"" };
+
+function setWeatherStatus(status, note){
+  weatherFetchState = { status, updatedAt: status==="ok" ? new Date() : weatherFetchState.updatedAt, note: note||"" };
+  renderWeatherStatus();
+}
+function renderWeatherStatus(){
+  const chip = document.getElementById("weatherDataChip");
+  const note = document.getElementById("weatherStatusNote");
+  const btn = document.getElementById("weatherRefreshBtn");
+  if (chip){
+    if (weatherFetchState.status === "loading"){
+      chip.innerHTML = `気温データ <b>取得中…</b>`;
+    } else if (weatherFetchState.status === "ok"){
+      const t = weatherFetchState.updatedAt;
+      const hh = String(t.getHours()).padStart(2,"0"), mm = String(t.getMinutes()).padStart(2,"0");
+      chip.innerHTML = `気温データ <b>ライブ取得 ${hh}:${mm}時点</b>`;
+    } else if (weatherFetchState.status === "error"){
+      chip.innerHTML = `気温データ <b>取得失敗・オフライン値を表示中</b>`;
+    }
+  }
+  if (note) note.textContent = weatherFetchState.note;
+  if (btn) btn.disabled = weatherFetchState.status === "loading";
+}
+
+async function fetchLiveWeather(){
+  setWeatherStatus("loading");
+  const lats = PREFS.map(p=>p[6]).join(",");
+  const lons = PREFS.map(p=>p[7]).join(",");
+  const url = "https://api.open-meteo.com/v1/forecast"
+    + `?latitude=${lats}&longitude=${lons}`
+    + `&hourly=temperature_2m,shortwave_radiation,cloud_cover,wind_speed_10m,uv_index`
+    + `&models=jma_seamless&timezone=Asia%2FTokyo&forecast_days=2`;
+  try{
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("HTTP "+res.status);
+    const data = await res.json();
+    const list = Array.isArray(data) ? data : [data];
+    if (list.length !== PREFS.length){
+      throw new Error(`地点数の不一致(${list.length}/${PREFS.length})`);
+    }
+    let okCount = 0;
+    const cloudSamples = [], windSamples = [];
+    const nowIdx = Math.max(0, Math.round(state.timeHour));
+    list.forEach((entry, i)=>{
+      try{
+        const h = entry && entry.hourly;
+        const temp = h && h.temperature_2m;
+        if (Array.isArray(temp) && temp.length && typeof temp[0] === "number"){
+          PREFS_HOURLY[i] = {
+            temp: h.temperature_2m,
+            solar: h.shortwave_radiation || null,
+            cloud: h.cloud_cover || null,
+            uv: h.uv_index || null,
+          };
+          okCount++;
+          const idxNow = Math.min(temp.length-1, nowIdx);
+          const c = h.cloud_cover ? h.cloud_cover[idxNow] : null;
+          if (typeof c === "number" && !Number.isNaN(c)) cloudSamples.push(c);
+          const w = h.wind_speed_10m ? h.wind_speed_10m[idxNow] : null;
+          if (typeof w === "number" && !Number.isNaN(w)) windSamples.push(w);
+        }
+      }catch(e){ /* このマスは取得できなかった → フォールバック値のまま残す */ }
+    });
+    if (okCount === 0) throw new Error("有効な気温データが0件でした");
+    // 天候(晴天/薄曇り/曇り)は全国平均の雲量から自動で初期値を提案する。
+    // ただしユーザーが天候ボタンを一度でも操作した後は上書きしない。
+    if (!state.weatherTouched && cloudSamples.length){
+      const avgCloud = cloudSamples.reduce((a,b)=>a+b,0)/cloudSamples.length; // 0-100%
+      const suggested = avgCloud < 30 ? "clear" : avgCloud < 70 ? "partly" : "overcast";
+      state.weatherId = suggested;
+      refreshSeg(document.getElementById("weatherSeg"), WEATHERS, suggested);
+    }
+    // 風速(体感)も同様に、全国平均の風速(km/h)からライブ値を初期値として提案する。
+    // 手動でスライダーを操作した後は上書きしない。0.4倍は地上10m風速→車体付近の減衰の簡易近似。
+    if (!state.windTouched && windSamples.length){
+      const avgWindKmh = windSamples.reduce((a,b)=>a+b,0)/windSamples.length;
+      const windMs = Math.max(0, Math.min(8, Math.round(((avgWindKmh/3.6)*0.4)*2)/2));
+      state.wind = windMs;
+      const windSliderEl = document.getElementById("windSlider");
+      if (windSliderEl) windSliderEl.value = windMs;
+    }
+    const skipped = PREFS.length - okCount;
+    setWeatherStatus("ok",
+      `${WEATHER_SOURCE_LABEL} から ${okCount}/${PREFS.length} 都道府県の時間帯別(1時間ごと・最大48時間先まで)の気温・日射量・雲量・風速・UV指数を取得しました。`
+      + (skipped>0 ? ` (${skipped}県は取得できず、待機中の目安値を使用しています)` : "")
+      + " 数値は今この瞬間の予報であり、通信環境やAPI側の状況により変動・失敗することがあります。"
+    );
+    updateAll();
+  }catch(err){
+    console.error("live weather fetch failed:", err);
+    setWeatherStatus("error",
+      `ライブ取得に失敗しました(${(err && err.message) || err})。オフライン用のフォールバック値(平年値に近い目安)を表示しています。`
+      + " ネット接続を確認し「🔄 気象データを再取得」をお試しください。"
+    );
+    updateAll();
+  }
+}
+document.getElementById("weatherRefreshBtn").addEventListener("click", fetchLiveWeather);
+
+/* ===================== MAIN UPDATE ===================== */
+let lastRows = [];
+function updateAll(){
+  refreshColorSeg();
+  document.getElementById("timeLabel").textContent = fmtHour(state.timeHour);
+  document.getElementById("adjLabel").textContent = (state.tempAdjust>0?"+":"")+state.tempAdjust+"℃";
+  document.getElementById("windLabel").textContent = state.wind+" m/s";
+  const now = new Date();
+  document.getElementById("metaTime").textContent = fmtHour(state.timeHour);
+  const metric = currentMetric();
+  document.getElementById("mapDesc").textContent = `都道府県タイルをタップすると、その地域の詳細な推定が下に表示されます(現在の表示: ${metric.name}温度)`;
+  renderScaleGuide(metric);
+
+  lastRows = renderStats();
+  renderTilesAndTable(lastRows);
+  checkAlerts(lastRows);
+  if (selectedPref) renderDetail();
+}
+
+/* ===================== SHARE / QR ===================== */
+// このファイルは「開いた場所のURL」をそのままQRコード化します。ローカルで
+// file:// として開いている間は他の人と共有できるURLがないため、その旨を案内し、
+// GitHub Pages等にホストして開いた場合のみ実際にQRコード・リンクを表示します。
+function renderShareQr(){
+  const qrBox = document.getElementById("qrBox");
+  const linkEl = document.getElementById("shareLinkText");
+  const url = location.href;
+  if (location.protocol === "file:"){
+    qrBox.innerHTML = `<div class="qr-note">ローカルで開いているため、共有用のQRコードはまだ生成できません。<br>GitHub Pages等にこのファイルをホストしたURLを開くと、ここにQRコードが表示されます。</div>`;
+    linkEl.textContent = "ホストしたURLを開くと、ここに表示されます";
+    linkEl.removeAttribute("href");
+    return;
+  }
+  try{
+    const qr = qrcode(0, "M");
+    qr.addData(url);
+    qr.make();
+    qrBox.innerHTML = qr.createSvgTag({cellSize:4, margin:4});
+    linkEl.textContent = url;
+    linkEl.href = url;
+  }catch(e){
+    console.error("QR generation failed:", e);
+    qrBox.innerHTML = `<div class="qr-note">QRコードの生成に失敗しました</div>`;
+  }
+}
+async function copyToClipboard(text){
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    try{ await navigator.clipboard.writeText(text); return true; }catch(e){ /* fall through */ }
+  }
+  try{
+    const ta = document.createElement("textarea");
+    ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    const ok = document.execCommand("copy");
+    document.body.removeChild(ta);
+    return ok;
+  }catch(e){ return false; }
+}
+document.getElementById("copyLinkBtn").addEventListener("click", async ()=>{
+  if (location.protocol === "file:"){ showToast("ローカルで開いているため、共有できるURLがありません。"); return; }
+  const ok = await copyToClipboard(location.href);
+  showToast(ok ? "リンクをコピーしました" : "コピーに失敗しました。リンクを選択して手動でコピーしてください。");
+});
+
+buildNationalGrid();
+updateAll();
+fetchLiveWeather();
+renderShareQr();
+})();
+</script>
