@@ -156,6 +156,9 @@ h1,h2,h3{font-family:var(--font-display); text-wrap:balance;}
 .stat-card.featured.danger{border-color: color-mix(in srgb, var(--crimson) 50%, var(--line)); background:linear-gradient(165deg, color-mix(in srgb, var(--crimson) 13%, var(--panel)), var(--panel) 65%);}
 .stat-card.featured.danger .label{color:var(--crimson-ink);}
 .car-swatch{display:inline-block; width:14px; height:14px; border-radius:50%; flex:none; box-shadow:inset 0 0 0 1.5px var(--text-faint);}
+.notify-metric{display:flex; align-items:baseline; flex-wrap:wrap; gap:9px; margin-top:6px;}
+.notify-metric .temp{font-family:var(--font-num); font-weight:800; font-size:25px; font-variant-numeric:tabular-nums; line-height:1;}
+.notify-metric .pill{font-family:var(--font-mono); font-weight:800; font-size:14px; padding:3px 11px; border-radius:100px; white-space:nowrap;}
 
 .danger-badge{display:inline-flex; align-items:center; gap:7px; font-family:var(--font-mono); font-size:12.5px; font-weight:700; border-radius:100px; padding:6px 13px; margin-top:10px;}
 .danger-badge.ok{color:var(--safe); border:1px solid var(--safe); background:color-mix(in srgb, var(--safe) 13%, transparent);}
@@ -2985,6 +2988,13 @@ const TIER_META = {
   safe:{label:"安全",icon:"✓"}, caution:{label:"注意",icon:"!"},
   warning:{label:"警戒",icon:"⚠"}, danger:{label:"危険",icon:"⛔"},
 };
+// 4段階(safe/caution/warning/danger)を強調表示用の色トークンに対応させる
+function tierColorVar(tier){
+  return tier==="danger" ? "var(--crimson-ink)"
+    : tier==="warning" ? "var(--orange-ink)"
+    : tier==="caution" ? "var(--sun-ink)"
+    : "var(--safe)";
+}
 
 const METRICS = [
   {id:"interior", name:"車内",       thresholds:INT_THRESH, seriesKey:"interior", color:"var(--crimson-ink)"},
@@ -3425,9 +3435,15 @@ function renderStats(){
     <div class="stat-card featured ${notifyTier==="danger"?"danger":notifyTier==="warning"?"warn":""}">
       <div class="label">登録した地域${notifyBell ? " "+notifyBell : ""}</div>
       <div class="value">${notifyRegionKey ? (notifyRegionName || notifyRegionObj.name) : "未登録"}</div>
-      <div class="sub">${notifyRegionObj
-        ? `${metric.name} ${fmt1(notifyVal)}℃ 相当 ・ ${TIER_META[notifyTier].label}`
-        : `地図でタイルを選んで「この地域を登録」を押すと表示されます`}</div>
+      ${notifyRegionObj ? `
+      <div class="notify-metric">
+        <span class="temp" style="color:${tierColorVar(notifyTier)};">${fmt1(notifyVal)}℃</span>
+        <span class="pill" style="color:${tierColorVar(notifyTier)}; background:color-mix(in srgb, ${tierColorVar(notifyTier)} 20%, transparent);">${TIER_META[notifyTier].icon} ${TIER_META[notifyTier].label}</span>
+      </div>
+      <div class="sub">${metric.name}相当の推定</div>
+      ` : `
+      <div class="sub">地図でタイルを選んで「この地域を登録」を押すと表示されます</div>
+      `}
     </div>
     <div class="stat-card featured">
       <div class="label">現在の車種・大きさ・色</div>
