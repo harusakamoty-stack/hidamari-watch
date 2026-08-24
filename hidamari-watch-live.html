@@ -446,7 +446,7 @@ footer .legal-terms p:first-of-type{margin-top:0;}
     <button class="table-toggle" id="guideToggle" type="button">使い方を見る ▾</button>
     <div class="collapse-wrap" id="guideBody">
       <ol class="guide-steps">
-        <li><b>車体の色・車種・天候・何時間後を予測</b>を選びます。「何時間後を予測」は現在時刻から1〜12時間先までをスライドして、その時点の予報(ライブ取得した先読みデータ)に基づく見込みを確認できるバーです。地図やグラフはこの設定にすぐ反映されます。気温・日射量・雲量・風速はページを開いた時点でライブ取得した値が初期状態として使われます。</li>
+        <li><b>車体の色・車種・何時間後を予測</b>を選びます。「何時間後を予測」は現在時刻(バーの左端)から12時間先までをスライドして、その時点の予報(ライブ取得した先読みデータ)に基づく見込みを確認できるバーです。地図やグラフはこの設定にすぐ反映されます。気温・日射量・雲量・湿度・風速はページを開いた時点でライブ取得した値がそのまま使われるため、「天候」を手動で選ぶ項目はありません。</li>
         <li><b>全国ヒートマップ</b>の都道府県タイルをタップすると、その都道府県内の市町村タイルに切り替わります。市町村タイル(または「表で見る」の行)をさらにタップすると、その地域の詳細な推定が下に表示されます。「← 全国に戻る」でいつでも全国表示に戻れます。</li>
         <li>詳細パネルの円形ゲージと5段階の色(✓安全 〜 ⛔危険)で、選んだ条件でのリスクの高さが一目でわかります。「ヒートマップ・統計の表示」で車内/車外ボディの切り替えも可能です。判定の直下には「推定◯℃が『危険』の基準(◯℃以上)に該当」のように、その判定になった具体的な根拠(推定温度と基準値)を必ず表示しています。ヒートマップの凡例下にある「「注意」「危険」の判定基準について」からも、基準の出典を確認できます。</li>
         <li><b>暑さ指数(WBGT)</b>は、車体の温度とは別に、環境省・気象庁が熱中症警戒アラート等で用いている公式の熱中症リスク指標を、同じ気象データから推定して5段階(ほぼ安全〜危険)で表示しています。車内・車外の推定温度が低めでも、暑さ指数が「警戒」以上のときは屋外での熱中症に注意してください。</li>
@@ -474,13 +474,9 @@ footer .legal-terms p:first-of-type{margin-top:0;}
       <div class="controls-label"><span>車種・大きさ</span></div>
       <div class="seg" id="typeSeg"></div>
     </div>
-    <div>
-      <div class="controls-label"><span>天候</span></div>
-      <div class="seg" id="weatherSeg"></div>
-    </div>
     <div class="slider-row">
       <div class="controls-label"><span>何時間後を予測</span><span id="timeLabel"></span></div>
-      <input type="range" id="timeSlider" min="1" max="12" step="0.5" value="1" aria-label="何時間後を予測するか(1〜12時間後)">
+      <input type="range" id="timeSlider" min="0" max="12" step="0.5" value="0" aria-label="何時間後を予測するか(現在〜12時間後)">
     </div>
     <div class="slider-row">
       <div class="controls-label"><span>気温補正(予報値からの上下)</span><span id="adjLabel"></span></div>
@@ -551,11 +547,11 @@ footer .legal-terms p:first-of-type{margin-top:0;}
       <div class="scale-levels" id="scaleLevels"></div>
     </div>
     <div class="method-summary">
-      <p><b style="color:var(--text)">車外ボディ表面温度</b>は、①太陽から吸収する熱、②風による対流で逃げる熱、③赤外線として空へ放出される熱(放射冷却)、の3つがつり合う温度を二分法で解く熱収支モデルに基づいています。気温・日射量・雲量・風速(体感の初期値)はOpen-Meteoから取得した都道府県ごとの時間帯別ライブ値を優先的に使い、取得できない場合や「天候」「風速」を手動で操作した後はそれぞれ緯度・時刻からの近似式・手動設定を使用します。風が強いほど対流による放熱が増え、雲が多いほど放射冷却が弱まるため、同じ気温でも表面温度は変わります。</p>
+      <p><b style="color:var(--text)">車外ボディ表面温度</b>は、①太陽から吸収する熱、②風による対流で逃げる熱、③赤外線として空へ放出される熱(放射冷却)、の3つがつり合う温度を二分法で解く熱収支モデルに基づいています。気温・日射量・雲量・風速(体感の初期値)はOpen-Meteoから取得した都道府県ごとの時間帯別ライブ値を優先的に使い、取得できない場合は緯度・時刻からの近似式(全国平均の雲量から自動推定した天候に応じた値)を、「風速」を手動で操作した後はその手動設定を使用します。風が強いほど対流による放熱が増え、雲が多いほど放射冷却が弱まるため、同じ気温でも表面温度は変わります。</p>
       <p><b style="color:var(--text)">車内温度</b>は、ガラスから入る日射による温室効果と、ボディの熱伝導による寄与を合わせた平衡温度に、車種ごとの時定数で指数関数的に近づくモデルです。</p>
       <p><b style="color:var(--text)">色による違い</b>は、米ローレンス・バークレー国立研究所などの研究(白系は日射の約6割を反射)や、シルバー車と黒色車で車内温度に約5〜6℃の差が生じたという実測例を参考に、色ごとの日射吸収率を設定しています。</p>
       <p><b style="color:var(--text)">「注意」「警戒」「危険」の判定基準(車内35/45/60℃、車外ボディ50/65/80℃)</b>は、公式の統一基準があるわけではなく、本アプリが独自に設定した目安です。JAFが2012年8月に実施した実測テスト(気温35℃・晴天下、黒色車を4時間放置)で車内温度が平均51℃・最高57℃、ダッシュボード表面温度が最高79℃に達したという結果、および国民生活センター等が公表している「窓を閉めた車内は短時間でも高温になり、乳幼児の熱中症死亡事故が繰り返し起きている」という注意喚起を参考に、実測値と大きく矛盾しない範囲で保守的(危険を見落とさない方向)に設定しています。個々のタイルで「危険」と表示された場合は、車内・車外ボディそれぞれの推定温度がその基準値を超えたことが直接の根拠です(詳細パネルの推定値と、下の5段階の対応する数値をご確認ください)。</p>
-      <p><b style="color:var(--text)">暑さ指数(WBGT)</b>は、上記の車体温度とは別に、環境省・気象庁が「熱中症警戒アラート」等で用いている公式の熱中症リスク指標です。気温・相対湿度・日射量・風速から暑さ指数を推定する小野ほか(2014)の式(環境省の暑さ指数予測値サイトも同じ式を採用)で算出し、環境省の基準(ほぼ安全21未満／注意21〜25／警戒25〜28／厳重警戒28〜31／危険31以上)に沿って5段階表示しています。相対湿度がライブ取得できない場合は、選択した「天候」に応じた目安値(晴天55%・薄曇り65%・曇り75%)で近似しているため、実測のWBGTとは差が生じることがあります。車内・車外の温度が「安全」域でも、暑さ指数が「警戒」以上の場合は屋外での熱中症リスクが高いことを示しますので、あわせてご確認ください。</p>
+      <p><b style="color:var(--text)">暑さ指数(WBGT)</b>は、上記の車体温度とは別に、環境省・気象庁が「熱中症警戒アラート」等で用いている公式の熱中症リスク指標です。気温・相対湿度・日射量・風速から暑さ指数を推定する小野ほか(2014)の式(環境省の暑さ指数予測値サイトも同じ式を採用)で算出し、環境省の基準(ほぼ安全21未満／注意21〜25／警戒25〜28／厳重警戒28〜31／危険31以上)に沿って5段階表示しています。相対湿度がライブ取得できない場合は、全国平均の雲量から自動推定した天候に応じた目安値(晴天55%・薄曇り65%・曇り75%)で近似しているため、実測のWBGTとは差が生じることがあります。車内・車外の温度が「安全」域でも、暑さ指数が「警戒」以上の場合は屋外での熱中症リスクが高いことを示しますので、あわせてご確認ください。</p>
       <p>あわせて、Open-Meteoが提供する<b style="color:var(--text)">UV指数</b>(世界保健機関のグローバル紫外線指数に基づく実測ベースの指数)を、都道府県を選んだ際の参考情報として表示しています。UVは熱によるダメージとは別に、主に塗装・樹脂パーツの色あせ・劣化に関わる指標です。</p>
     </div>
     <div class="disclaimer">
@@ -3118,13 +3114,15 @@ function nowHourJST(){
 }
 
 let state = {
-  colorId:"red", typeId:"sedan", weatherId:"clear",
-  timeOffset:1, // 「何時間後を予測」スライダーの値(今から何時間後か、1〜12)
+  colorId:"red", typeId:"sedan",
+  // weatherId: 「天候」は手動選択UIを廃止し、常にライブ取得した雲量の全国平均から自動推定する
+  // (fetchLiveWeather内)。ライブ取得できない地点・失敗時のみ、ここにフォールバックとして残る。
+  weatherId:"clear",
+  timeOffset:0, // 「何時間後を予測」スライダーの値(今から何時間後か、0〜12。0=現在時刻)
   timeHour:13, // = nowHourJST() + timeOffset として都度算出する実際の推定対象時刻(24を超えることがある)
   tempAdjust:0, wind:2,
   justParked:true, sunshade:false, crack:false,
   metric:"interior",
-  weatherTouched:false, // becomes true once the user manually picks 天候, so the live-fetch cloud-cover auto-suggestion stops overriding it
   windTouched:false, // becomes true once the user manually moves 風速(体感), so the live-fetch wind auto設定はそれ以降上書きしない
 };
 state.timeHour = nowHourJST() + state.timeOffset;
@@ -3265,21 +3263,32 @@ function cabinEq(G,carType,sunshade,dExtEq){
 function tierFor(v,th){ if(v<th[0])return"safe"; if(v<th[1])return"caution"; if(v<th[2])return"warning"; return"danger"; }
 function tierRank(t){ return {safe:0,caution:1,warning:2,danger:3}[t]; }
 function worstTier(a,b){ return tierRank(a)>=tierRank(b)?a:b; }
-function fmtHour(h){ const hh=Math.floor(h), mm=Math.round((h-hh)*60); return String(hh).padStart(2,"0")+":"+String(mm).padStart(2,"0"); }
+function fmtHour(h){
+  let hh=Math.floor(h), mm=Math.round((h-hh)*60);
+  if (mm>=60){ mm=0; hh+=1; } // 分を四捨五入した結果ちょうど60になる場合の繰り上げ(例:16:60→17:00)
+  if (hh>=24) hh-=24; // このファイル内のfmtHour呼び出しはすべて時計表示用で、24時は0時として表示する
+  return String(hh).padStart(2,"0")+":"+String(mm).padStart(2,"0");
+}
 // 内部計算用のtimeHourは「今日0時からの連続時刻」で24を超えることがある(例: 23時+5時間後=28時)。
 // 表示用には24で折り返した時計表示にする。
 function fmtClock(h){ return fmtHour(((h%24)+24)%24); }
-// 「何時間後を予測」バーのラベル(例: "3時間後（18:15頃）")
-function fmtOffsetLabel(offset){
+// 「何時間後を予測」バーの、時間差部分だけの短い表記(例: "現在" / "3時間後")。
+// detail panelのチップ等、他の場所でも同じ言い回しを使うために切り出している。
+function offsetPhrase(offset){
+  if (offset===0) return "現在";
   const offStr = (Math.round(offset*10)/10).toString();
-  return `${offStr}時間後（${fmtClock(state.timeHour)}頃）`;
+  return `${offStr}時間後`;
+}
+// 「何時間後を予測」バーのラベル(例: "現在（16:53頃）" / "3時間後（18:15頃）")
+function fmtOffsetLabel(offset){
+  return `${offsetPhrase(offset)}（${fmtClock(state.timeHour)}頃）`;
 }
 function fmt1(v){ return (Math.round(v*10)/10).toFixed(1); }
 
 // region.hourly(hourlyAt/resolveConditionsの入力になる時間帯別ライブデータ、無ければnull)から、
 // ある時刻の気温・日射量・雲量・UV指数を線形補間で取り出す。
-// ライブ取得できていて「天候」を手動操作していない間はライブ値を優先し、
-// 取得不可・手動操作後は太陽高度からの近似式(既存モデル)にフォールバックする。
+// ライブ取得できていればその値を優先し、取得不可の場合のみ太陽高度からの近似式(既存モデル)に
+// フォールバックする。
 function hourlyAt(hourlyEntry, hourFloat){
   const h = hourlyEntry;
   if (!h || !h.temp || !h.temp.length) return null;
@@ -3301,21 +3310,24 @@ function resolveConditions(region, hourFloat){
   const doy = dayOfYear(new Date());
   const hourOfDay = ((hourFloat%24)+24)%24;
   const elev = solarElevationDeg(region.lat, doy, hourOfDay);
+  // weatherは「天候」の手動選択UIが無くなったため、常にfetchLiveWeather()が全国の雲量から
+  // 自動推定したstate.weatherIdを指す。ライブの日射量・雲量・湿度が取れない地点/時刻でのみ、
+  // このweatherの目安値(晴天/薄曇り/曇りの近似式・湿度)にフォールバックする。
   const weather = WEATHERS.find(w=>w.id===state.weatherId);
   const live = hourlyAt(region.hourly, hourFloat);
   const baseTemp = (live && typeof live.temp === "number") ? live.temp : region.fallback;
   const ambient = baseTemp + state.tempAdjust;
   let G, cloudPct;
-  if (state.weatherTouched || !live || live.solar==null){
+  if (!live || live.solar==null){
     G = irradiance(elev, weather.cloud);
     cloudPct = weather.cloudPct;
   } else {
     G = Math.max(0, live.solar);
     cloudPct = (live.cloud!=null) ? live.cloud : weather.cloudPct;
   }
-  // 暑さ指数(WBGT)推定用の相対湿度。ライブ取得できていて「天候」を手動操作していない間は
-  // ライブ値を優先し、取得不可・手動操作後は選んだ天候に応じた目安値にフォールバックする。
-  const humidity = (!state.weatherTouched && live && live.humidity!=null) ? live.humidity : weather.rh;
+  // 暑さ指数(WBGT)推定用の相対湿度。ライブ取得できていればその値を優先し、
+  // 取得不可の場合のみ自動推定した天候に応じた目安値にフォールバックする。
+  const humidity = (live && live.humidity!=null) ? live.humidity : weather.rh;
   return { ambient, elev, G, cloudPct, uv: live ? live.uv : null, humidity };
 }
 function uvTier(uv){
@@ -3342,7 +3354,7 @@ function computeNow(region){
     intNow = intEq - (intEq-ambient)*decay;
   }
   const wbgt = estimateWBGT(ambient, humidity, G, state.wind);
-  return {ambient, elev, G, ext, intNow, intEq, humidity, wbgt};
+  return {ambient, elev, G, cloudPct, ext, intNow, intEq, humidity, wbgt};
 }
 
 // 0-100 score from a temperature + its own tier thresholds [caution,warning,danger],
@@ -3728,7 +3740,6 @@ function renderDetail(){
   const tier = tierFor(metricValue(r), metric.thresholds);
   const color = CAR_COLORS.find(c=>c.id===state.colorId);
   const type = CAR_TYPES.find(t=>t.id===state.typeId);
-  const weather = WEATHERS.find(w=>w.id===state.weatherId);
   const otherLine = metric.id==="interior"
     ? `車外ボディ推定 ${fmt1(r.ext)}℃`
     : `車内推定 ${fmt1(r.intNow)}℃`;
@@ -3749,8 +3760,9 @@ function renderDetail(){
       <div class="factors">
         <div class="factor"><span class="ic">🎨</span>${color.name}</div>
         <div class="factor"><span class="ic">🚘</span>${type.name}</div>
-        <div class="factor"><span class="ic">☁️</span>${weather.name}</div>
-        <div class="factor"><span class="ic">🕐</span>${state.timeOffset}時間後・${fmtClock(state.timeHour)}時点</div>
+        <div class="factor"><span class="ic">☁️</span>雲量 ${Math.round(r.cloudPct)}%</div>
+        <div class="factor"><span class="ic">💧</span>湿度 ${Math.round(r.humidity)}%</div>
+        <div class="factor"><span class="ic">🕐</span>${offsetPhrase(state.timeOffset)}・${fmtClock(state.timeHour)}時点</div>
         ${uvChip}
       </div>
       <div class="advice">${adviceFor(tier, region.name, metric.id)}<br><span style="font-size:12.5px; color:var(--text-faint);">${tierBasisText(tier, metric, metricValue(r))}</span></div>
@@ -3810,10 +3822,28 @@ function renderForecastFor(region){
   const metric = currentMetric();
   const seriesKey = metric.seriesKey;
   const startTier = tierFor(series[0][seriesKey], metric.thresholds);
-  const found = series.find((p,i)=> i>0 && tierRank(tierFor(p[seriesKey],metric.thresholds)) > tierRank(startTier));
-  if (found){ msg = `このままだと <b>${fmtHour(found.t)}頃</b> に${metric.name}が「${TIER_META[tierFor(found[seriesKey],metric.thresholds)].label}」域(${fmt1(found[seriesKey])}℃)に達する見込みです。`; }
-  else if (startTier!=="safe"){ msg = `現在の設定では、この8時間は${metric.name}がずっと「${TIER_META[startTier].label}」域以上の見込みです。`; }
-  else { msg = `この8時間は${metric.name}が「安全」域を維持する見込みです。`; }
+  const startRank = tierRank(startTier);
+  // 開始時点からの段階変化を検出する。悪化(ランクが上がる)方向だけを見ていると、
+  // ピークを過ぎてこれから下がっていく場合でも「ずっと警戒域」のように誤解を招く
+  // 表示になってしまうため、改善(ランクが下がる)方向の変化も同様に検出し、
+  // 8時間の中で最初に起きる変化(悪化・改善のどちらか早い方)を報告する。
+  let turningPoint = null, turningDir = null;
+  for (let i=1;i<series.length;i++){
+    const r = tierRank(tierFor(series[i][seriesKey], metric.thresholds));
+    if (r > startRank){ turningPoint = series[i]; turningDir = "worse"; break; }
+    if (r < startRank){ turningPoint = series[i]; turningDir = "better"; break; }
+  }
+  if (turningDir === "worse"){
+    const t = tierFor(turningPoint[seriesKey], metric.thresholds);
+    msg = `このままだと <b>${fmtHour(turningPoint.t)}頃</b> に${metric.name}が「${TIER_META[t].label}」域(${fmt1(turningPoint[seriesKey])}℃)に達する見込みです。`;
+  } else if (turningDir === "better"){
+    const t = tierFor(turningPoint[seriesKey], metric.thresholds);
+    msg = `現在「${TIER_META[startTier].label}」域ですが、<b>${fmtHour(turningPoint.t)}頃</b>には「${TIER_META[t].label}」域まで下がる見込みです。`;
+  } else if (startTier!=="safe"){
+    msg = `現在の設定では、この8時間は${metric.name}がずっと「${TIER_META[startTier].label}」域の見込みです(この先8時間で悪化・改善どちらの予報上の変化も見られません)。`;
+  } else {
+    msg = `この8時間は${metric.name}が「安全」域を維持する見込みです。`;
+  }
   document.getElementById("forecastNote").innerHTML = msg;
 }
 
@@ -4032,7 +4062,6 @@ function buildSeg(container, items, selectedId, onPick){
 }
 function refreshSeg(container, items, selectedId){ [...container.children].forEach((b,i)=> b.classList.toggle("active", items[i].id===selectedId)); }
 buildSeg(document.getElementById("typeSeg"), CAR_TYPES, state.typeId, id=>{ state.typeId=id; refreshSeg(document.getElementById("typeSeg"),CAR_TYPES,id); updateAll(); saveSettings(); });
-buildSeg(document.getElementById("weatherSeg"), WEATHERS, state.weatherId, id=>{ state.weatherId=id; state.weatherTouched=true; refreshSeg(document.getElementById("weatherSeg"),WEATHERS,id); updateAll(); });
 buildSeg(document.getElementById("metricSeg"), METRICS, state.metric, id=>{
   state.metric = id;
   refreshSeg(document.getElementById("metricSeg"), METRICS, id);
@@ -4165,13 +4194,12 @@ async function fetchLiveWeather(){
       }catch(e){ /* このマスは取得できなかった → フォールバック値のまま残す */ }
     });
     if (okCount === 0) throw new Error("有効な気温データが0件でした");
-    // 天候(晴天/薄曇り/曇り)は全国平均の雲量から自動で初期値を提案する。
-    // ただしユーザーが天候ボタンを一度でも操作した後は上書きしない。
-    if (!state.weatherTouched && cloudSamples.length){
+    // 天候(晴天/薄曇り/曇り)の手動選択UIは廃止し、常に全国平均の雲量から自動推定する。
+    // ライブの日射量・雲量が取れない地点/時刻でのみ、この推定天候の目安値にフォールバックする。
+    if (cloudSamples.length){
       const avgCloud = cloudSamples.reduce((a,b)=>a+b,0)/cloudSamples.length; // 0-100%
       const suggested = avgCloud < 30 ? "clear" : avgCloud < 70 ? "partly" : "overcast";
       state.weatherId = suggested;
-      refreshSeg(document.getElementById("weatherSeg"), WEATHERS, suggested);
     }
     // 風速(体感)も同様に、全国平均の風速(km/h)からライブ値を初期値として提案する。
     // 手動でスライダーを操作した後は上書きしない。0.4倍は地上10m風速→車体付近の減衰の簡易近似。
