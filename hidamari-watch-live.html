@@ -1,5 +1,5 @@
 <meta charset="utf-8">
-<title>陽だまりウォッチ</title>
+<title>炎天チェッカー</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -376,7 +376,7 @@ footer{text-align:center; padding:26px 20px 6px; color:var(--text-faint); font-s
       <div class="eyebrow"><span class="dot"></span>SUN EXPOSURE ESTIMATE — 全国 車両ヒートリスク推定</div>
       <button type="button" id="themeToggle" class="theme-toggle" aria-label="表示テーマを切り替え"></button>
     </div>
-    <h1>陽だまりウォッチ <span class="live-badge">LIVE</span></h1>
+    <h1>炎天チェッカー <span class="live-badge">LIVE</span></h1>
     <p>車体の色・車種と、都道府県ごとのその場でライブ取得した気温・日射量・雲量・風速・UV指数、および緯度・時刻から算出した太陽高度から、対流と放射の熱収支モデルにより直射日光による車外ボディと車内の温度上昇を推定します。都道府県タイルをタップすると詳細な推定と今後の見通しが見られます。</p>
     <div class="meta">
       <div class="chip">対象 <b>全国47都道府県</b></div>
@@ -395,7 +395,7 @@ footer{text-align:center; padding:26px 20px 6px; color:var(--text-faint); font-s
     <div class="map-head">
       <div>
         <h2>📘 使い方ガイド</h2>
-        <p>陽だまりウォッチの基本的な使い方をまとめています</p>
+        <p>炎天チェッカーの基本的な使い方をまとめています</p>
       </div>
     </div>
     <button class="table-toggle" id="guideToggle" type="button">使い方を見る ▾</button>
@@ -536,7 +536,7 @@ footer{text-align:center; padding:26px 20px 6px; color:var(--text-faint); font-s
 
 </div>
 
-<footer>陽だまりウォッチ — プロトタイプ ／ 実測データではありません</footer>
+<footer>炎天チェッカー — プロトタイプ ／ 実測データではありません</footer>
 
 <script>
 /* qrcode.js -- QR Code Generator for JavaScript (MIT License, (c) 2009 Kazuhiko Arase) -- embedded for offline/self-contained use */
@@ -3858,7 +3858,7 @@ function checkAlerts(){
   // ブラウザ通知(OS通知)は「危険」域に達した瞬間だけに絞る。「警戒」域は
   // 画面内のトースト表示のみとし、通知が頻発して煩わしくならないようにする。
   if (tierRank(tier) > tierRank(prev) && tier==="danger" && notifyEnabled && notifyPermission==="granted"){
-    try{ new Notification("陽だまりウォッチ: "+label, {body:`${metric.name}推定 ${fmt1(val)}℃ ─ 危険域に達しました`}); }catch(e){}
+    try{ new Notification("炎天チェッカー: "+label, {body:`${metric.name}推定 ${fmt1(val)}℃ ─ 危険域に達しました`}); }catch(e){}
   }
   lastTierByRegion[region.key] = tier;
 }
