@@ -145,6 +145,21 @@ h1,h2,h3{font-family:var(--font-display); text-wrap:balance;}
 .stat-card .sub{font-size:13px; color:var(--text-dim); margin-top:4px;}
 .stat-card.warn .value{color:var(--orange-ink);}
 .stat-card.danger .value{color:var(--crimson-ink);}
+.stat-card.featured{
+  border-color: color-mix(in srgb, var(--sun) 38%, var(--line));
+  background: linear-gradient(165deg, color-mix(in srgb, var(--sun) 9%, var(--panel)), var(--panel) 65%);
+}
+.stat-card.featured .label{color:var(--sun-ink);}
+.stat-card.featured .value{font-size:20px;}
+.stat-card.featured.warn{border-color: color-mix(in srgb, var(--orange-ink) 45%, var(--line)); background:linear-gradient(165deg, color-mix(in srgb, var(--orange-ink) 11%, var(--panel)), var(--panel) 65%);}
+.stat-card.featured.warn .label{color:var(--orange-ink);}
+.stat-card.featured.danger{border-color: color-mix(in srgb, var(--crimson) 50%, var(--line)); background:linear-gradient(165deg, color-mix(in srgb, var(--crimson) 13%, var(--panel)), var(--panel) 65%);}
+.stat-card.featured.danger .label{color:var(--crimson-ink);}
+.car-swatch{display:inline-block; width:14px; height:14px; border-radius:50%; flex:none; box-shadow:inset 0 0 0 1.5px var(--text-faint);}
+
+.danger-badge{display:inline-flex; align-items:center; gap:7px; font-family:var(--font-mono); font-size:12.5px; font-weight:700; border-radius:100px; padding:6px 13px; margin-top:10px;}
+.danger-badge.ok{color:var(--safe); border:1px solid var(--safe); background:color-mix(in srgb, var(--safe) 13%, transparent);}
+.danger-badge.alert{color:var(--crimson-ink); border:1px solid var(--crimson); background:color-mix(in srgb, var(--crimson) 15%, transparent);}
 
 /* ---------- CONTROLS ---------- */
 .controls{display:flex; flex-direction:column; gap:13px; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:14px;}
@@ -451,6 +466,7 @@ footer{text-align:center; padding:26px 20px 6px; color:var(--text-faint); font-s
       <div>
         <h2 id="mapTitle">全国ヒートマップ</h2>
         <p id="mapDesc">都道府県タイルをタップすると、その都道府県内の市町村ヒートマップに切り替わります</p>
+        <div class="danger-badge" id="dangerBadge"></div>
       </div>
       <div><div class="legend"><span>低</span><div class="bar"></div><span>高</span></div></div>
     </div>
@@ -3400,31 +3416,40 @@ function renderStats(){
   const notifyTier = notifyRegionObj ? tierFor(notifyVal, metric.thresholds) : null;
   const notifyBell = !notifyRegionKey ? "" : (notifyEnabled && notifyPermission==="granted") ? "🔔" : "🔕";
 
+  const type = CAR_TYPES.find(t=>t.id===state.typeId);
   const stats = document.getElementById("stats");
+  // 「登録した地域」と「現在の車設定」は、この車でどこを見守っているかを示す最も大事な情報
+  // なので先頭2枚に固定し、目立つ見た目(featured)にする。危険域の件数は地図の直上に
+  // バッジとして常時表示するので、ここには置かない(下のdangerBadge更新を参照)。
   stats.innerHTML = `
+    <div class="stat-card featured ${notifyTier==="danger"?"danger":notifyTier==="warning"?"warn":""}">
+      <div class="label">登録した地域${notifyBell ? " "+notifyBell : ""}</div>
+      <div class="value">${notifyRegionKey ? (notifyRegionName || notifyRegionObj.name) : "未登録"}</div>
+      <div class="sub">${notifyRegionObj
+        ? `${metric.name} ${fmt1(notifyVal)}℃ 相当 ・ ${TIER_META[notifyTier].label}`
+        : `地図でタイルを選んで「この地域を登録」を押すと表示されます`}</div>
+    </div>
+    <div class="stat-card featured">
+      <div class="label">現在の車種・大きさ・色</div>
+      <div class="value" style="display:flex; align-items:center; gap:8px;">
+        <span class="car-swatch" style="background:${color.hex};"></span>${type.name}・${color.name}
+      </div>
+      <div class="sub">すべての地域の推定は、この設定で計算しています</div>
+    </div>
     <div class="stat-card">
       <div class="label">${drillPref || "全国"} ${metric.name}推定の平均</div>
       <div class="value">${fmt1(avg)}℃</div>
       <div class="sub">${scopeLabel}の単純平均</div>
     </div>
-    <div class="stat-card ${dangerCount>0?"danger":""}">
-      <div class="label">危険域(${metric.thresholds[2]}℃〜)の${noun}数</div>
-      <div class="value">${dangerCount}/${rows.length}</div>
-      <div class="sub">${metric.name}・この設定・時刻での見込み</div>
-    </div>
-    <div class="stat-card">
-      <div class="label">現在の車設定</div>
-      <div class="value" style="font-size:18px;">${color.name}</div>
-      <div class="sub">${CAR_TYPES.find(t=>t.id===state.typeId).name} / ${WEATHERS.find(w=>w.id===state.weatherId).name}</div>
-    </div>
-    <div class="stat-card ${notifyTier==="danger"?"danger":notifyTier==="warning"?"warn":""}">
-      <div class="label">登録した地域${notifyBell ? " "+notifyBell : ""}</div>
-      <div class="value" style="font-size:18px;">${notifyRegionKey ? (notifyRegionName || notifyRegionObj.name) : "未登録"}</div>
-      <div class="sub">${notifyRegionObj
-        ? `${metric.name} ${fmt1(notifyVal)}℃ 相当 ・ ${TIER_META[notifyTier].label}`
-        : `地域を選んで「この地域を登録」を押すと表示されます`}</div>
-    </div>
   `;
+
+  const badge = document.getElementById("dangerBadge");
+  if (badge){
+    badge.className = "danger-badge " + (dangerCount>0 ? "alert" : "ok");
+    badge.textContent = dangerCount>0
+      ? `⛔ 危険域(${metric.thresholds[2]}℃〜)の${noun} ${dangerCount}/${rows.length}`
+      : `✓ 危険域(${metric.thresholds[2]}℃〜)の${noun} 0/${rows.length}`;
+  }
   return rows;
 }
 
