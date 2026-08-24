@@ -320,8 +320,31 @@ footer{text-align:center; padding:26px 20px 6px; color:var(--text-faint); font-s
 .toast b{color:var(--crimson-ink);}
 @keyframes toastIn{from{transform:translateX(30px); opacity:0;} to{transform:translateX(0); opacity:1;}}
 @media (max-width:600px){#toastWrap{left:12px; right:12px; max-width:none;}}
+
+/* ---------- PULL TO REFRESH ---------- */
+#pullRefresh{
+  position:fixed; top:0; left:0; right:0; z-index:998;
+  height:52px; margin-top:-52px;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  background:var(--panel-2); border-bottom:1px solid var(--line-soft);
+  color:var(--text-dim); font-size:13px; font-weight:700;
+  transition:transform .18s ease;
+  pointer-events:none;
+}
+#pullRefresh.dragging{transition:none;}
+#pullRefresh .pr-spin{
+  width:15px; height:15px; border-radius:50%; flex:none;
+  border:2px solid var(--line); border-top-color:var(--sun);
+  animation:pr-spin .8s linear infinite; animation-play-state:paused;
+}
+#pullRefresh.loading .pr-spin{animation-play-state:running;}
+@keyframes pr-spin{to{transform:rotate(360deg);}}
+@media (prefers-reduced-motion: reduce){
+  #pullRefresh .pr-spin{animation:none;}
+}
 </style>
 
+<div id="pullRefresh"><span class="pr-spin"></span><span id="pullRefreshLabel">下に引くと更新</span></div>
 <div id="toastWrap"></div>
 
 <div class="hero">
@@ -2963,7 +2986,9 @@ let state = {
 let selectedRegion = null; // {key, name, lat, fallback, hourly} 都道府県 or 市町村のどちらかを一意に指す
 let drillPref = null; // ドリルダウン中の都道府県名(nullなら全国47都道府県表示)
 let notifyPermission = (typeof Notification !== "undefined") ? Notification.permission : "unsupported";
-let notifyEnabled = false; // ブラウザ許可(notifyPermission)とは別に、アプリ側で「今この地域の通知を受け取るか」を持つフラグ
+let notifyEnabled = false; // ブラウザ許可(notifyPermission)とは別に、アプリ側で「今は通知を受け取る」と選んでいるか
+let notifyRegionKey = null; // 「登録」した地域のkey(見ている地域とは独立。他の地域を見ていてもここだけを監視する)
+let notifyRegionName = null; // 表示用の名称(市町村なら「都道府県 市町村」の形)
 let lastTierByRegion = {};
 
 /* ===================== 登録内容のデフォルト化(localStorage) ===================== */
@@ -2980,6 +3005,8 @@ function saveSettings(){
       crack: state.crack,
       metric: state.metric,
       notifyEnabled: notifyEnabled,
+      notifyRegionKey: notifyRegionKey || null,
+      notifyRegionName: notifyRegionName || null,
       drillPref: drillPref || null,
       region: selectedRegion ? (
         selectedRegion.key.indexOf("::") >= 0
@@ -3004,6 +3031,8 @@ if (savedSettings){
   if (typeof savedSettings.crack === "boolean") state.crack = savedSettings.crack;
   if (METRICS.some(m=>m.id===savedSettings.metric)) state.metric = savedSettings.metric;
   if (typeof savedSettings.notifyEnabled === "boolean") notifyEnabled = savedSettings.notifyEnabled;
+  if (typeof savedSettings.notifyRegionKey === "string") notifyRegionKey = savedSettings.notifyRegionKey;
+  if (typeof savedSettings.notifyRegionName === "string") notifyRegionName = savedSettings.notifyRegionName;
 }
 // 通知許可がブラウザ側で失われている(拒否/未設定に戻っている)のに、保存された
 // 設定だけが「有効」を覚えていても意味がないので、その場合はここで整合させる。
@@ -3020,6 +3049,21 @@ function muniRegion(prefName, muniRow, idx){
   const parentFallback = parentIdx!=null ? PREFS[parentIdx][5] : 30;
   const hourlyArr = MUNI_HOURLY[prefName];
   return { key: prefName+"::"+muniRow[0], name: muniRow[0], lat: muniRow[1], fallback: parentFallback, hourly: hourlyArr ? hourlyArr[idx] : null };
+}
+// region.keyの文字列("県名" or "県名::市町村名")から、実際の地点情報オブジェクトを作り直す。
+// 保存された設定の復元や、「今見ている地域」とは別に「登録した地域」を裏で監視する際に使う。
+function regionFromKey(key){
+  if (!key) return null;
+  const idx = key.indexOf("::");
+  if (idx < 0){
+    const pIdx = PREF_INDEX[key];
+    return pIdx != null ? prefRegion(PREFS[pIdx]) : null;
+  }
+  const prefName = key.slice(0, idx);
+  const muniName = key.slice(idx+2);
+  const list = MUNI_BY_PREF[prefName] || [];
+  const mIdx = list.findIndex(m=>m[0]===muniName);
+  return mIdx >= 0 ? muniRegion(prefName, list[mIdx], mIdx) : null;
 }
 // 現在のスコープ(全国 or ドリルダウン中の都道府県)の地点一覧
 function currentRegions(){
@@ -3307,6 +3351,19 @@ if (drillPref){
     }
   }
 }
+// 「登録」した地域は、今見ている都道府県と違っていても裏で監視を続けるため、
+// その都道府県の市町村データも(まだ取得していなければ)取得しておく。
+if (notifyRegionKey){
+  const notifyPrefName = notifyRegionKey.indexOf("::") >= 0 ? notifyRegionKey.split("::")[0] : null;
+  if (notifyPrefName && notifyPrefName !== drillPref) ensureMuniData(notifyPrefName);
+  const notifyRegion0 = regionFromKey(notifyRegionKey);
+  if (notifyRegion0){
+    lastTierByRegion[notifyRegion0.key] = tierFor(metricValue(computeNow(notifyRegion0)), currentMetric().thresholds);
+  } else {
+    // 保存されていた登録地域が(データ不整合等で)復元できなかった場合は諦めて登録を外す
+    notifyRegionKey = null; notifyRegionName = null; notifyEnabled = false;
+  }
+}
 let resizeTimer=null;
 window.addEventListener("resize", ()=>{
   clearTimeout(resizeTimer);
@@ -3520,15 +3577,11 @@ function renderDetail(){
           <div class="detail-sub-title">🎨 同じ状況で色が違うと?</div>
           <div id="compareRows"></div>
         </div>
-        <div class="notify-row">
-          <button class="btn" id="notifyBtn" type="button">この地域の通知をブラウザで許可</button>
-          <span style="font-size:12.5px; color:var(--text-faint);" id="notifyStatus"></span>
-        </div>
+        <div class="notify-row" id="notifyRow"></div>
       </div>
     </div>
   `;
-  document.getElementById("notifyBtn").addEventListener("click", requestNotify);
-  updateNotifyStatus();
+  renderNotifyRow(region);
   renderForecastFor(region);
   renderComparisonFor(region);
 }
@@ -3588,41 +3641,123 @@ function renderComparisonFor(region){
   });
 }
 
-// notifyPermission(ブラウザ側の許可)と notifyEnabled(アプリ側で「今は通知を
-// 受け取る」と選んでいるか)は別物として管理する。ブラウザの許可はユーザーが
-// ブラウザの設定からしか取り消せないため、ボタンで「解除」できるのはアプリ側の
-// notifyEnabledフラグだけ。すでに許可されていればボタン一つで有効/解除を切り替え、
-// まだ許可されていなければ最初にブラウザの許可ダイアログを出す。
-function requestNotify(){
-  if (typeof Notification === "undefined"){ alert("このブラウザは通知に対応していません。"); return; }
-  if (notifyEnabled){
-    notifyEnabled = false;
-    updateNotifyStatus();
+// 「登録」= 通知を監視する地域を選ぶこと(notifyRegionKey)。「通知」= 登録した地域について
+// 実際にブラウザ通知を送るかどうかのオン/オフ(notifyEnabled)。両者を分けているので、
+// 一度登録しておけば他の地域を見ていても登録地域の「危険」だけを教えてくれる。
+// notifyPermission(ブラウザ側の許可)はユーザーがブラウザの設定からしか取り消せないため、
+// トグルで切り替えられるのはアプリ側のnotifyEnabledだけ。
+function requestBrowserNotifyPermission(onDone){
+  function applyResult(p){ notifyPermission = p; onDone(p); }
+  try{
+    // 古いSafari等はコールバック方式(戻り値なし)、モダンブラウザはPromiseを返す方式。
+    // どちらでも動くように両方に対応する。
+    const maybePromise = Notification.requestPermission(applyResult);
+    if (maybePromise && typeof maybePromise.then === "function"){
+      maybePromise.then(applyResult).catch(err=>{
+        console.error("notification permission request failed:", err);
+        onDone(notifyPermission);
+      });
+    }
+  }catch(err){
+    console.error("notification permission request failed:", err);
+    onDone(notifyPermission);
+  }
+}
+function registerNotifyRegion(region){
+  notifyRegionKey = region.key;
+  notifyRegionName = region.key.indexOf("::") >= 0 ? region.key.split("::")[0]+" "+region.name : region.name;
+  // 登録した瞬間にすでに危険域でも、それ自体でいきなり通知が飛ぶのは煩わしいので基準値として記録しておく
+  lastTierByRegion[region.key] = tierFor(metricValue(computeNow(region)), currentMetric().thresholds);
+  if (typeof Notification === "undefined"){
     saveSettings();
+    renderDetail();
+    alert("このブラウザは通知には対応していません(iPhoneのSafari等、タブを開いただけの状態では通知APIが使えないブラウザがあります)。地域の登録自体は完了したので、この画面を開いていれば「危険」域になった際に案内が表示されます。");
     return;
   }
   if (notifyPermission === "granted"){
     notifyEnabled = true;
-    updateNotifyStatus();
     saveSettings();
+    renderDetail();
+  } else if (notifyPermission === "denied"){
+    notifyEnabled = false;
+    saveSettings();
+    renderDetail();
+  } else {
+    saveSettings();
+    renderDetail(); // 許可待ちの間もいったん「登録済み」の見た目にしておく
+    requestBrowserNotifyPermission(p=>{
+      notifyEnabled = (p === "granted");
+      saveSettings();
+      renderDetail();
+    });
+  }
+}
+function unregisterNotifyRegion(){
+  notifyRegionKey = null;
+  notifyRegionName = null;
+  notifyEnabled = false;
+  saveSettings();
+  renderDetail();
+}
+function onNotifyToggle(checked){
+  if (!checked){
+    notifyEnabled = false;
+    saveSettings();
+    renderDetail();
     return;
   }
-  Notification.requestPermission().then(p=>{
-    notifyPermission = p;
-    if (p === "granted") notifyEnabled = true;
-    updateNotifyStatus();
+  if (notifyPermission === "granted"){
+    notifyEnabled = true;
     saveSettings();
+    renderDetail();
+    return;
+  }
+  if (notifyPermission === "denied"){
+    renderDetail(); // 許可がブロックされているので、トグルはOFFのまま・状態欄でブロックを案内する
+    return;
+  }
+  requestBrowserNotifyPermission(p=>{
+    notifyEnabled = (p === "granted");
+    saveSettings();
+    renderDetail();
   });
 }
-function updateNotifyStatus(){
-  const btn = document.getElementById("notifyBtn");
-  const el = document.getElementById("notifyStatus");
-  if (!el || !btn) return;
-  const active = notifyEnabled && notifyPermission==="granted";
-  btn.textContent = active ? "通知を解除" : "この地域の通知をブラウザで許可";
-  el.textContent = notifyPermission==="denied" ? "通知はブロックされています(ブラウザの設定から解除してください)"
-    : active ? "通知は有効です(「危険」域になった時のみ)"
-    : "未設定";
+// この地域の詳細パネル内、通知の登録/解除UIを描く。「今見ている地域」と「登録済みの地域」が
+// 同じかどうかで、登録ボタンとトグルスイッチのどちらを見せるかを切り替える。
+function renderNotifyRow(region){
+  const row = document.getElementById("notifyRow");
+  if (!row) return;
+  const isThisRegistered = notifyRegionKey === region.key;
+  if (!isThisRegistered){
+    const note = notifyRegionKey
+      ? `現在「${notifyRegionName || notifyRegionKey}」を登録中です。登録すると、この地域に切り替わります。`
+      : `登録すると、この地域が「危険」域になった際にブラウザ通知でお知らせします。他の地域を見ていても、登録した地域だけが通知の対象になります。`;
+    row.innerHTML = `
+      <div class="forecast-note">${note}</div>
+      <button class="btn" id="registerRegionBtn" type="button">この地域を登録</button>
+      <span style="font-size:12.5px; color:var(--text-faint);" id="notifyStatus"></span>
+    `;
+    document.getElementById("registerRegionBtn").addEventListener("click", ()=> registerNotifyRegion(region));
+  } else {
+    row.innerHTML = `
+      <div class="toggle-line" style="width:100%;">
+        <div><div class="tl-label">この地域の通知</div><div class="tl-hint" id="notifyStatus"></div></div>
+        <label class="switch"><input type="checkbox" id="notifyToggle"><span class="switch-track"></span><span class="switch-thumb"></span></label>
+      </div>
+      <button class="btn ghost small" id="unregisterRegionBtn" type="button">登録を解除</button>
+    `;
+    const toggle = document.getElementById("notifyToggle");
+    toggle.checked = notifyEnabled && notifyPermission === "granted";
+    toggle.addEventListener("change", e=> onNotifyToggle(e.target.checked));
+    document.getElementById("unregisterRegionBtn").addEventListener("click", unregisterNotifyRegion);
+  }
+  const statusEl = document.getElementById("notifyStatus");
+  if (statusEl){
+    statusEl.textContent = notifyPermission==="denied" ? "通知はブロックされています(ブラウザの設定から解除してください)"
+      : (isThisRegistered && notifyEnabled && notifyPermission==="granted") ? "「危険」域になった時のみ通知します"
+      : isThisRegistered ? "通知はオフです(画面内のお知らせのみ)"
+      : "";
+  }
 }
 
 function selectRegion(region){
@@ -3645,25 +3780,26 @@ function showToast(text){
   wrap.appendChild(el);
   setTimeout(()=>{ el.style.transition="opacity .3s"; el.style.opacity="0"; setTimeout(()=>el.remove(),320); }, 5000);
 }
-// アラートは「選択中の地点」1件だけを対象にする(全国/全市町村一斉に条件を変えると
-// 大量の通知が飛んでしまうため)。上部の地図で色を見れば全体の状況は
-// 一目でわかるので、通知は自分が選んだ地点の変化だけを知らせれば十分。
-function checkAlerts(rows){
-  if (!selectedRegion) return;
-  const row = rows.find(x=>x.region.key===selectedRegion.key);
-  if (!row) return;
-  const {region,r} = row;
+// アラートは「登録した地点」1件だけを対象にする(全国/全市町村一斉に条件を変えると
+// 大量の通知が飛んでしまうため)。上部の地図で色を見れば全体の状況は一目でわかるので、
+// 通知は登録した地点の変化だけを知らせれば十分。「今見ている地域」とは独立していて、
+// 他の都道府県を見ていても登録した地域の監視は裏で続く。
+function checkAlerts(){
+  if (!notifyRegionKey) return;
+  const region = regionFromKey(notifyRegionKey);
+  if (!region) return;
+  const label = notifyRegionName || region.name;
   const metric = currentMetric();
-  const val = metricValue(r);
+  const val = metricValue(computeNow(region));
   const tier = tierFor(val, metric.thresholds);
   const prev = lastTierByRegion[region.key] || "safe";
   if (tierRank(tier) > tierRank(prev) && (tier==="warning"||tier==="danger")){
-    showToast(`<b>${region.name}</b>: ${metric.name}推定 ${fmt1(val)}℃ ─ 「${TIER_META[tier].label}」域`);
+    showToast(`<b>${label}</b>: ${metric.name}推定 ${fmt1(val)}℃ ─ 「${TIER_META[tier].label}」域`);
   }
   // ブラウザ通知(OS通知)は「危険」域に達した瞬間だけに絞る。「警戒」域は
   // 画面内のトースト表示のみとし、通知が頻発して煩わしくならないようにする。
   if (tierRank(tier) > tierRank(prev) && tier==="danger" && notifyEnabled && notifyPermission==="granted"){
-    try{ new Notification("陽だまりウォッチ: "+region.name, {body:`${metric.name}推定 ${fmt1(val)}℃ ─ 危険域に達しました`}); }catch(e){}
+    try{ new Notification("陽だまりウォッチ: "+label, {body:`${metric.name}推定 ${fmt1(val)}℃ ─ 危険域に達しました`}); }catch(e){}
   }
   lastTierByRegion[region.key] = tier;
 }
@@ -3698,10 +3834,14 @@ buildSeg(document.getElementById("weatherSeg"), WEATHERS, state.weatherId, id=>{
 buildSeg(document.getElementById("metricSeg"), METRICS, state.metric, id=>{
   state.metric = id;
   refreshSeg(document.getElementById("metricSeg"), METRICS, id);
-  // switching metric changes the tier basis for the selected region —
-  // re-snapshot it so the switch itself never fires a toast
+  // switching metric changes the tier basis for both the region being viewed and the
+  // registered(通知登録中の)region — re-snapshot both so the switch itself never fires a toast
   if (selectedRegion){
     lastTierByRegion[selectedRegion.key] = tierFor(metricValue(computeNow(selectedRegion)), currentMetric().thresholds);
+  }
+  if (notifyRegionKey){
+    const nr = regionFromKey(notifyRegionKey);
+    if (nr) lastTierByRegion[nr.key] = tierFor(metricValue(computeNow(nr)), currentMetric().thresholds);
   }
   updateAll();
   saveSettings();
@@ -3866,11 +4006,12 @@ function renderMuniFetchNote(prefName, status, okCount, total, err){
     note.textContent = `${prefName}内の市町村データの取得に失敗しました(${(err && err.message) || err})。${prefName}全体の目安値で表示しています。`;
   }
 }
-async function ensureMuniData(prefName){
+async function ensureMuniData(prefName, force){
   const list = MUNI_BY_PREF[prefName] || [];
   if (!list.length) return;
-  if (MUNI_HOURLY[prefName] || muniFetchState[prefName] === "loading"){
-    renderMuniFetchNote(prefName, MUNI_HOURLY[prefName] ? "ok" : "loading", 0, list.length);
+  if (muniFetchState[prefName] === "loading") return; // 取得中に重ねて呼ばれた場合は何もしない
+  if (!force && MUNI_HOURLY[prefName]){
+    renderMuniFetchNote(prefName, "ok", 0, list.length);
     return;
   }
   muniFetchState[prefName] = "loading";
@@ -3928,7 +4069,7 @@ function updateAll(){
 
   lastRows = renderStats();
   renderTilesAndTable(lastRows);
-  checkAlerts(lastRows);
+  checkAlerts();
   renderDetail(); // selectedRegionがnullなら内部で空状態の案内文に戻す
 }
 
@@ -3976,6 +4117,85 @@ document.getElementById("copyLinkBtn").addEventListener("click", async ()=>{
   const ok = await copyToClipboard(location.href);
   showToast(ok ? "リンクをコピーしました" : "コピーに失敗しました。リンクを選択して手動でコピーしてください。");
 });
+
+/* ===================== 画面を下にスワイプして更新 ===================== */
+// ページ最上部にいる状態で下方向にドラッグ(スマホのタッチ操作)すると、
+// スライダー・タイル・スイッチ等の操作と競合しないよう対象要素以外からの
+// ドラッグに限って、気象データ(都道府県 + 現在ドリルダウン中/登録中の市町村)を再取得する。
+(function(){
+  const indicator = document.getElementById("pullRefresh");
+  const label = document.getElementById("pullRefreshLabel");
+  if (!indicator || !label) return;
+  const THRESHOLD = 68; // ここまで引いたら離した時に更新される
+  const MAX_PULL = 100;
+  const EXCLUDE_SELECTOR = "input, button, a, .tile, #hoverCatch, label.switch";
+  let startY = null;
+  let pulling = false;
+  let refreshing = false;
+
+  function atPageTop(){
+    return (window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0) <= 0;
+  }
+  function setIndicator(px, mode){
+    indicator.style.transform = `translateY(${px}px)`;
+    if (mode === "loading") label.textContent = "更新しています…";
+    else if (mode === "ready") label.textContent = "離すと更新します";
+    else label.textContent = "下に引くと更新";
+  }
+
+  document.addEventListener("touchstart", (e)=>{
+    if (refreshing || e.touches.length !== 1){ startY = null; return; }
+    if (!atPageTop()){ startY = null; return; }
+    if (e.target.closest && e.target.closest(EXCLUDE_SELECTOR)){ startY = null; return; }
+    startY = e.touches[0].clientY;
+    pulling = false;
+  }, {passive:true});
+
+  document.addEventListener("touchmove", (e)=>{
+    if (startY == null || refreshing) return;
+    if (!atPageTop()){ startY = null; if (pulling){ pulling=false; indicator.classList.remove("dragging","visible"); indicator.style.transform=""; } return; }
+    const dy = e.touches[0].clientY - startY;
+    if (dy <= 0){
+      // まだ引き始めていない、あるいは上方向への揺れ程度。開始点はそのまま保持し、
+      // 表示だけリセットする(タッチ開始直後の1pxの揺れでジェスチャー自体を無効にしないため)。
+      if (pulling){ pulling=false; indicator.classList.remove("dragging","visible"); indicator.style.transform=""; }
+      return;
+    }
+    pulling = true;
+    indicator.classList.add("dragging","visible");
+    const pull = Math.min(MAX_PULL, dy * 0.5);
+    setIndicator(pull, pull >= THRESHOLD ? "ready" : "pull");
+  }, {passive:true});
+
+  document.addEventListener("touchend", ()=>{
+    if (!pulling){ startY = null; return; }
+    const m = /translateY\((-?\d+(?:\.\d+)?)px\)/.exec(indicator.style.transform);
+    const pulled = m ? parseFloat(m[1]) : 0;
+    pulling = false; startY = null;
+    indicator.classList.remove("dragging");
+    if (pulled >= THRESHOLD){ doPullRefresh(); }
+    else { indicator.classList.remove("visible"); indicator.style.transform = ""; }
+  });
+
+  async function doPullRefresh(){
+    refreshing = true;
+    indicator.classList.add("visible","loading");
+    setIndicator(THRESHOLD, "loading");
+    const tasks = [fetchLiveWeather()];
+    if (drillPref) tasks.push(ensureMuniData(drillPref, true));
+    if (notifyRegionKey){
+      const idx = notifyRegionKey.indexOf("::");
+      const notifyPref = idx >= 0 ? notifyRegionKey.slice(0, idx) : null;
+      if (notifyPref && notifyPref !== drillPref) tasks.push(ensureMuniData(notifyPref, true));
+    }
+    await Promise.allSettled(tasks);
+    indicator.classList.remove("loading","visible");
+    indicator.style.transform = "";
+    label.textContent = "下に引くと更新";
+    refreshing = false;
+    showToast("最新の気象データに更新しました");
+  }
+})();
 
 updateAll();
 fetchLiveWeather();
