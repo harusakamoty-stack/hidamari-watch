@@ -2963,7 +2963,51 @@ let state = {
 let selectedRegion = null; // {key, name, lat, fallback, hourly} 都道府県 or 市町村のどちらかを一意に指す
 let drillPref = null; // ドリルダウン中の都道府県名(nullなら全国47都道府県表示)
 let notifyPermission = (typeof Notification !== "undefined") ? Notification.permission : "unsupported";
+let notifyEnabled = false; // ブラウザ許可(notifyPermission)とは別に、アプリ側で「今この地域の通知を受け取るか」を持つフラグ
 let lastTierByRegion = {};
+
+/* ===================== 登録内容のデフォルト化(localStorage) ===================== */
+// 選んだ地域・ボディカラー・車種など「その人の設定」に相当するものだけを保存し、
+// 次回このページを開いたときに自動で復元する。天候・時刻・風速・今降車直後か等は
+// 「今の状況」であって「登録内容」ではないため、意図的に保存対象から外している。
+const SETTINGS_KEY = "hidamari-settings";
+function saveSettings(){
+  try{
+    const payload = {
+      colorId: state.colorId,
+      typeId: state.typeId,
+      sunshade: state.sunshade,
+      crack: state.crack,
+      metric: state.metric,
+      notifyEnabled: notifyEnabled,
+      drillPref: drillPref || null,
+      region: selectedRegion ? (
+        selectedRegion.key.indexOf("::") >= 0
+          ? { type:"muni", pref: selectedRegion.key.split("::")[0], name: selectedRegion.name }
+          : { type:"pref", name: selectedRegion.name }
+      ) : null,
+    };
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(payload));
+  }catch(e){ /* localStorageが使えない環境では黙って諦める(機能に支障はない) */ }
+}
+function loadSettings(){
+  try{
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){ return null; }
+}
+const savedSettings = loadSettings();
+if (savedSettings){
+  if (CAR_COLORS.some(c=>c.id===savedSettings.colorId)) state.colorId = savedSettings.colorId;
+  if (CAR_TYPES.some(t=>t.id===savedSettings.typeId)) state.typeId = savedSettings.typeId;
+  if (typeof savedSettings.sunshade === "boolean") state.sunshade = savedSettings.sunshade;
+  if (typeof savedSettings.crack === "boolean") state.crack = savedSettings.crack;
+  if (METRICS.some(m=>m.id===savedSettings.metric)) state.metric = savedSettings.metric;
+  if (typeof savedSettings.notifyEnabled === "boolean") notifyEnabled = savedSettings.notifyEnabled;
+}
+// 通知許可がブラウザ側で失われている(拒否/未設定に戻っている)のに、保存された
+// 設定だけが「有効」を覚えていても意味がないので、その場合はここで整合させる。
+if (notifyEnabled && notifyPermission !== "granted") notifyEnabled = false;
 
 // 都道府県の1行(PREFS配列の要素)・市町村の1行(MUNI_BY_PREFの要素)のどちらからも
 // 同じ形の「地点情報」を作る。以降の物理計算・描画はすべてこの形だけを見て動く。
@@ -3231,6 +3275,7 @@ function drillIntoPref(prefName){
   buildGrid();
   ensureMuniData(prefName);
   updateAll();
+  saveSettings();
 }
 function backToNational(){
   drillPref = null;
@@ -3239,9 +3284,29 @@ function backToNational(){
   updateMapHeadText();
   buildGrid();
   updateAll();
+  saveSettings();
 }
 document.getElementById("backToNationalBtn").addEventListener("click", backToNational);
+
+// 前回登録した地域(都道府県のドリルダウン状態・選択していた市町村)を復元する。
+// selectRegion()は後で定義されるlastRows等に依存するため、ここでは直接
+// drillPref/selectedRegionを設定するだけにとどめ、実際の描画は末尾のupdateAll()に任せる。
+if (savedSettings && savedSettings.drillPref && MUNI_BY_PREF[savedSettings.drillPref]){
+  drillPref = savedSettings.drillPref;
+}
+updateMapHeadText();
 buildGrid();
+if (drillPref){
+  ensureMuniData(drillPref);
+  if (savedSettings && savedSettings.region && savedSettings.region.type === "muni" && savedSettings.region.pref === drillPref){
+    const list = MUNI_BY_PREF[drillPref] || [];
+    const idx = list.findIndex(m=>m[0]===savedSettings.region.name);
+    if (idx >= 0){
+      selectedRegion = muniRegion(drillPref, list[idx], idx);
+      lastTierByRegion[selectedRegion.key] = tierFor(metricValue(computeNow(selectedRegion)), currentMetric().thresholds);
+    }
+  }
+}
 let resizeTimer=null;
 window.addEventListener("resize", ()=>{
   clearTimeout(resizeTimer);
@@ -3523,14 +3588,41 @@ function renderComparisonFor(region){
   });
 }
 
+// notifyPermission(ブラウザ側の許可)と notifyEnabled(アプリ側で「今は通知を
+// 受け取る」と選んでいるか)は別物として管理する。ブラウザの許可はユーザーが
+// ブラウザの設定からしか取り消せないため、ボタンで「解除」できるのはアプリ側の
+// notifyEnabledフラグだけ。すでに許可されていればボタン一つで有効/解除を切り替え、
+// まだ許可されていなければ最初にブラウザの許可ダイアログを出す。
 function requestNotify(){
   if (typeof Notification === "undefined"){ alert("このブラウザは通知に対応していません。"); return; }
-  Notification.requestPermission().then(p=>{ notifyPermission=p; updateNotifyStatus(); });
+  if (notifyEnabled){
+    notifyEnabled = false;
+    updateNotifyStatus();
+    saveSettings();
+    return;
+  }
+  if (notifyPermission === "granted"){
+    notifyEnabled = true;
+    updateNotifyStatus();
+    saveSettings();
+    return;
+  }
+  Notification.requestPermission().then(p=>{
+    notifyPermission = p;
+    if (p === "granted") notifyEnabled = true;
+    updateNotifyStatus();
+    saveSettings();
+  });
 }
 function updateNotifyStatus(){
+  const btn = document.getElementById("notifyBtn");
   const el = document.getElementById("notifyStatus");
-  if (!el) return;
-  el.textContent = notifyPermission==="granted" ? "通知は有効です" : notifyPermission==="denied" ? "通知はブロックされています" : "未設定";
+  if (!el || !btn) return;
+  const active = notifyEnabled && notifyPermission==="granted";
+  btn.textContent = active ? "通知を解除" : "この地域の通知をブラウザで許可";
+  el.textContent = notifyPermission==="denied" ? "通知はブロックされています(ブラウザの設定から解除してください)"
+    : active ? "通知は有効です(「危険」域になった時のみ)"
+    : "未設定";
 }
 
 function selectRegion(region){
@@ -3541,6 +3633,7 @@ function selectRegion(region){
   renderDetail();
   renderTilesAndTable(lastRows);
   document.getElementById("detail").scrollIntoView({behavior:"smooth", block:"nearest"});
+  saveSettings();
 }
 
 /* ===================== TOASTS / ALERTS ===================== */
@@ -3566,7 +3659,11 @@ function checkAlerts(rows){
   const prev = lastTierByRegion[region.key] || "safe";
   if (tierRank(tier) > tierRank(prev) && (tier==="warning"||tier==="danger")){
     showToast(`<b>${region.name}</b>: ${metric.name}推定 ${fmt1(val)}℃ ─ 「${TIER_META[tier].label}」域`);
-    if (notifyPermission==="granted"){ try{ new Notification("陽だまりウォッチ: "+region.name, {body:`${metric.name}推定 ${fmt1(val)}℃ ─ ${TIER_META[tier].label}域`}); }catch(e){} }
+  }
+  // ブラウザ通知(OS通知)は「危険」域に達した瞬間だけに絞る。「警戒」域は
+  // 画面内のトースト表示のみとし、通知が頻発して煩わしくならないようにする。
+  if (tierRank(tier) > tierRank(prev) && tier==="danger" && notifyEnabled && notifyPermission==="granted"){
+    try{ new Notification("陽だまりウォッチ: "+region.name, {body:`${metric.name}推定 ${fmt1(val)}℃ ─ 危険域に達しました`}); }catch(e){}
   }
   lastTierByRegion[region.key] = tier;
 }
@@ -3577,7 +3674,7 @@ CAR_COLORS.forEach(c=>{
   const btn = document.createElement("button");
   btn.type="button"; btn.className="color-opt"+(c.id===state.colorId?" active":"");
   btn.innerHTML = `<span class="dot" style="background:${c.hex}"></span><span class="nm">${c.name}</span>`;
-  btn.addEventListener("click", ()=>{ state.colorId=c.id; refreshColorSeg(); updateAll(); });
+  btn.addEventListener("click", ()=>{ state.colorId=c.id; refreshColorSeg(); updateAll(); saveSettings(); });
   colorSeg.appendChild(btn);
 });
 function refreshColorSeg(){
@@ -3596,7 +3693,7 @@ function buildSeg(container, items, selectedId, onPick){
   });
 }
 function refreshSeg(container, items, selectedId){ [...container.children].forEach((b,i)=> b.classList.toggle("active", items[i].id===selectedId)); }
-buildSeg(document.getElementById("typeSeg"), CAR_TYPES, state.typeId, id=>{ state.typeId=id; refreshSeg(document.getElementById("typeSeg"),CAR_TYPES,id); updateAll(); });
+buildSeg(document.getElementById("typeSeg"), CAR_TYPES, state.typeId, id=>{ state.typeId=id; refreshSeg(document.getElementById("typeSeg"),CAR_TYPES,id); updateAll(); saveSettings(); });
 buildSeg(document.getElementById("weatherSeg"), WEATHERS, state.weatherId, id=>{ state.weatherId=id; state.weatherTouched=true; refreshSeg(document.getElementById("weatherSeg"),WEATHERS,id); updateAll(); });
 buildSeg(document.getElementById("metricSeg"), METRICS, state.metric, id=>{
   state.metric = id;
@@ -3607,14 +3704,19 @@ buildSeg(document.getElementById("metricSeg"), METRICS, state.metric, id=>{
     lastTierByRegion[selectedRegion.key] = tierFor(metricValue(computeNow(selectedRegion)), currentMetric().thresholds);
   }
   updateAll();
+  saveSettings();
 });
 
 document.getElementById("timeSlider").addEventListener("input", e=>{ state.timeHour=parseFloat(e.target.value); updateAll(); });
 document.getElementById("adjSlider").addEventListener("input", e=>{ state.tempAdjust=parseFloat(e.target.value); updateAll(); });
 document.getElementById("windSlider").addEventListener("input", e=>{ state.wind=parseFloat(e.target.value); state.windTouched=true; updateAll(); });
 document.getElementById("justParkedToggle").addEventListener("change", e=>{ state.justParked=e.target.checked; updateAll(); });
-document.getElementById("sunshadeToggle").addEventListener("change", e=>{ state.sunshade=e.target.checked; updateAll(); });
-document.getElementById("crackToggle").addEventListener("change", e=>{ state.crack=e.target.checked; updateAll(); });
+// サンシェード/窓を数cm開けている、はstate.sunshade/state.crackとして保存対象になっているため、
+// 復元した値をチェックボックスの見た目にも反映しておく(HTML側の初期checked属性はfalse固定のため)
+document.getElementById("sunshadeToggle").checked = state.sunshade;
+document.getElementById("crackToggle").checked = state.crack;
+document.getElementById("sunshadeToggle").addEventListener("change", e=>{ state.sunshade=e.target.checked; updateAll(); saveSettings(); });
+document.getElementById("crackToggle").addEventListener("change", e=>{ state.crack=e.target.checked; updateAll(); saveSettings(); });
 document.getElementById("advToggle").addEventListener("click", ()=>{
   const b=document.getElementById("advBody"), chev=document.getElementById("advChevron");
   b.classList.toggle("open"); chev.style.transform = b.classList.contains("open") ? "rotate(180deg)" : "";
