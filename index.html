@@ -192,6 +192,7 @@ h1,h2,h3{font-family:var(--font-display); text-wrap:balance;}
 .seg{display:flex; gap:4px; background:var(--bg-1); border:1px solid var(--line); border-radius:10px; padding:4px; overflow-x:auto; scrollbar-width:none;}
 .seg::-webkit-scrollbar{display:none;}
 .seg button{font-size:14px; font-weight:500; color:var(--text-dim); background:transparent; border:none; border-radius:7px; padding:9px 13px; cursor:pointer; transition:all .15s ease; white-space:nowrap; flex:0 0 auto; min-height:42px;}
+.seg button .d{display:block; font-family:var(--font-mono); font-size:10.5px; opacity:0.75; margin-top:1px;}
 .seg button.active{background:linear-gradient(135deg,var(--sun),var(--ember)); color:#1a0f08; font-weight:700;}
 .seg button:not(.active):hover{color:var(--text); background:var(--panel-2);}
 .color-seg{display:flex; gap:8px; overflow-x:auto; scrollbar-width:none; padding:2px;}
@@ -446,7 +447,7 @@ footer .legal-terms p:first-of-type{margin-top:0;}
     <button class="table-toggle" id="guideToggle" type="button">使い方を見る ▾</button>
     <div class="collapse-wrap" id="guideBody">
       <ol class="guide-steps">
-        <li><b>車体の色・車種・何時間後を予測</b>を選びます。「何時間後を予測」は現在時刻(バーの左端)から12時間先までをスライドして、その時点の予報(ライブ取得した先読みデータ)に基づく見込みを確認できるバーです。地図やグラフはこの設定にすぐ反映されます。気温・日射量・雲量・湿度・風速はページを開いた時点でライブ取得した値がそのまま使われるため、「天候」を手動で選ぶ項目はありません。</li>
+        <li><b>車体の色・車種・期間・時間帯</b>を選びます。「期間」(今日〜3日後)と「時間帯」(早朝・午前・午後・夕方・夜間)を組み合わせて選ぶと、その日その時間帯の予報(ライブ取得した先読みデータ)に基づく見込みを確認できます。地図やグラフはこの設定にすぐ反映されます。気温・日射量・雲量・湿度・風速はページを開いた時点でライブ取得した値がそのまま使われるため、「天候」を手動で選ぶ項目はありません。</li>
         <li><b>全国ヒートマップ</b>の都道府県タイルをタップすると、その都道府県内の市町村タイルに切り替わります。市町村タイル(または「表で見る」の行)をさらにタップすると、その地域の詳細な推定が下に表示されます。「← 全国に戻る」でいつでも全国表示に戻れます。</li>
         <li>詳細パネルの円形ゲージと5段階の色(✓安全 〜 ⛔危険)で、選んだ条件でのリスクの高さが一目でわかります。「ヒートマップ・統計の表示」で車内/車外ボディの切り替えも可能です。判定の直下には「推定◯℃が『危険』の基準(◯℃以上)に該当」のように、その判定になった具体的な根拠(推定温度と基準値)を必ず表示しています。ヒートマップの凡例下にある「「注意」「危険」の判定基準について」からも、基準の出典を確認できます。</li>
         <li><b>暑さ指数(WBGT)</b>は、車体の温度とは別に、環境省・気象庁が熱中症警戒アラート等で用いている公式の熱中症リスク指標を、同じ気象データから推定して5段階(ほぼ安全〜危険)で表示しています。車内・車外の推定温度が低めでも、暑さ指数が「警戒」以上のときは屋外での熱中症に注意してください。</li>
@@ -474,9 +475,13 @@ footer .legal-terms p:first-of-type{margin-top:0;}
       <div class="controls-label"><span>車種・大きさ</span></div>
       <div class="seg" id="typeSeg"></div>
     </div>
-    <div class="slider-row">
-      <div class="controls-label"><span>何時間後を予測</span><span id="timeLabel"></span></div>
-      <input type="range" id="timeSlider" min="0" max="12" step="0.5" value="0" aria-label="何時間後を予測するか(現在〜12時間後)">
+    <div>
+      <div class="controls-label"><span>期間</span><span id="timeLabel"></span></div>
+      <div class="seg" id="daySeg"></div>
+    </div>
+    <div>
+      <div class="controls-label"><span>時間帯</span></div>
+      <div class="seg" id="slotSeg"></div>
     </div>
     <div class="slider-row">
       <div class="controls-label"><span>気温補正(予報値からの上下)</span><span id="adjLabel"></span></div>
@@ -555,7 +560,7 @@ footer .legal-terms p:first-of-type{margin-top:0;}
       <p>あわせて、Open-Meteoが提供する<b style="color:var(--text)">UV指数</b>(世界保健機関のグローバル紫外線指数に基づく実測ベースの指数)を、都道府県を選んだ際の参考情報として表示しています。UVは熱によるダメージとは別に、主に塗装・樹脂パーツの色あせ・劣化に関わる指標です。</p>
     </div>
     <div class="disclaimer">
-      <b>ご利用にあたって：</b>このファイルは<b>ブラウザがページを開いたその場でOpen-Meteo(気象庁GSM・MSMモデルを含む複数の気象モデルを配信するオープンAPI)に直接アクセスし、都道府県代表地点の時間帯別(1時間ごと・最大48時間先まで)の気温・相対湿度・日射量・雲量・風速・UV指数を取得</b>します。サーバーを経由せず、あなたの端末から気象データ取得→熱収支モデルによる車体温度推定・暑さ指数推定までがブラウザの中だけで完結します。ヘッダーの「🔄 気象データを再取得」でいつでも最新の予報に更新できます。通信環境やAPI側の状況によっては取得に失敗することがあり、その場合は待機中の目安値(平年値に近い値)で表示を継続します。太陽位置は緯度・時刻からの近似計算で、経度補正や大気減衰は簡略化しています。窓を数cm開ける対策も効果は限定的とされており、過信せず短時間でも人やペットを車内に残さないことが重要です。<b>本アプリの数値・判定はすべて目安であり、公式の熱中症警戒アラート等に置き換わるものではありません。</b>実際の熱中症予防・車内放置事故防止については、環境省・JAF等の公式情報も必ずご確認ください。
+      <b>ご利用にあたって：</b>このファイルは<b>ブラウザがページを開いたその場でOpen-Meteo(気象庁GSM・MSMモデルを含む複数の気象モデルを配信するオープンAPI)に直接アクセスし、都道府県代表地点の時間帯別(1時間ごと・最大3日先まで)の気温・相対湿度・日射量・雲量・風速・UV指数を取得</b>します。サーバーを経由せず、あなたの端末から気象データ取得→熱収支モデルによる車体温度推定・暑さ指数推定までがブラウザの中だけで完結します。ヘッダーの「🔄 気象データを再取得」でいつでも最新の予報に更新できます。通信環境やAPI側の状況によっては取得に失敗することがあり、その場合は待機中の目安値(平年値に近い値)で表示を継続します。太陽位置は緯度・時刻からの近似計算で、経度補正や大気減衰は簡略化しています。窓を数cm開ける対策も効果は限定的とされており、過信せず短時間でも人やペットを車内に残さないことが重要です。<b>本アプリの数値・判定はすべて目安であり、公式の熱中症警戒アラート等に置き換わるものではありません。</b>実際の熱中症予防・車内放置事故防止については、環境省・JAF等の公式情報も必ずご確認ください。
       <div class="sources">
         <span>Lawrence Berkeley National Laboratory: Cool Colors for Cars</span>
         <a href="https://jaf.or.jp/common/safety-drive/car-learning/user-test/temperature/summer" target="_blank" rel="noopener">JAFユーザーテスト「真夏の車内温度」</a>
@@ -3113,19 +3118,55 @@ function nowHourJST(){
   return jst.getUTCHours() + jst.getUTCMinutes()/60 + jst.getUTCSeconds()/3600;
 }
 
+/* ===================== 期間・時間帯の選択(日付×時間帯のマトリクス) ===================== */
+// 実際の「今日」をJST基準の日付として取得する(端末側のタイムゾーン設定に依存しない)。
+function nowDateJST(){
+  const jst = new Date(Date.now() + 9*3600000);
+  return new Date(Date.UTC(jst.getUTCFullYear(), jst.getUTCMonth(), jst.getUTCDate()));
+}
+const WEEKDAY_JA = ["日","月","火","水","木","金","土"];
+function formatDayLabel(dayOffset){
+  const d = new Date(nowDateJST().getTime() + dayOffset*86400000);
+  return `${d.getUTCMonth()+1}/${d.getUTCDate()}(${WEEKDAY_JA[d.getUTCDay()]})`;
+}
+// 「期間」= 今日を起点に3日先までの4日分。ページを開いた時点の日付で決まる
+// (日をまたいで開きっぱなしにした場合は、再読み込みで最新の日付に更新される)。
+const DAYS = ["今日","明日","明後日","3日後"].map((label,i)=>({label, d: formatDayLabel(i)}));
+// 「時間帯」= 1日を5つの帯に区切る。start/endは0時起点の時刻(endは24を超える場合があり、
+// 「夜間」だけ日をまたぐ)。repは各帯の代表時刻で、この時刻のライブ予報データを使って計算する。
+const SLOTS = [
+  {key:"early",  label:"早朝", d:"5-9時",   start:5,  end:9,  rep:7},
+  {key:"morning",label:"午前", d:"9-12時",  start:9,  end:12, rep:10.5},
+  {key:"noon",   label:"午後", d:"12-17時", start:12, end:17, rep:14.5},
+  {key:"evening",label:"夕方", d:"17-21時", start:17, end:21, rep:19},
+  {key:"night",  label:"夜間", d:"21-5時",  start:21, end:29, rep:25},
+];
+// 今の実時刻がどの時間帯に該当するかを調べる(ページを開いた時のデフォルト選択に使う)。
+function currentSlotIdx(){
+  const h = ((nowHourJST()%24)+24)%24;
+  for (let i=0;i<SLOTS.length;i++){
+    const s = SLOTS[i];
+    const wraps = s.end > 24;
+    if (wraps ? (h >= s.start || h < (s.end-24)) : (h >= s.start && h < s.end)) return i;
+  }
+  return 2; // 念のためのフォールバック(午後)
+}
+
 let state = {
   colorId:"red", typeId:"sedan",
   // weatherId: 「天候」は手動選択UIを廃止し、常にライブ取得した雲量の全国平均から自動推定する
   // (fetchLiveWeather内)。ライブ取得できない地点・失敗時のみ、ここにフォールバックとして残る。
   weatherId:"clear",
-  timeOffset:0, // 「何時間後を予測」スライダーの値(今から何時間後か、0〜12。0=現在時刻)
-  timeHour:13, // = nowHourJST() + timeOffset として都度算出する実際の推定対象時刻(24を超えることがある)
+  dayIdx:0, // 「期間」の選択(0=今日,1=明日,2=明後日,3=3日後)
+  slotIdx: currentSlotIdx(), // 「時間帯」の選択。ページを開いた時の実時刻が含まれる帯をデフォルトにする
+  timeHour:13, // = dayIdx*24 + SLOTS[slotIdx].rep として都度算出する実際の推定対象時刻(24を超えることがある)
   tempAdjust:0, wind:2,
   justParked:true, sunshade:false, crack:false,
   metric:"interior",
   windTouched:false, // becomes true once the user manually moves 風速(体感), so the live-fetch wind auto設定はそれ以降上書きしない
 };
-state.timeHour = nowHourJST() + state.timeOffset;
+function recalcTimeHour(){ state.timeHour = state.dayIdx*24 + SLOTS[state.slotIdx].rep; }
+recalcTimeHour();
 let selectedRegion = null; // {key, name, lat, fallback, hourly} 都道府県 or 市町村のどちらかを一意に指す
 let drillPref = null; // ドリルダウン中の都道府県名(nullなら全国47都道府県表示)
 let notifyPermission = (typeof Notification !== "undefined") ? Notification.permission : "unsupported";
@@ -3272,16 +3313,17 @@ function fmtHour(h){
 // 内部計算用のtimeHourは「今日0時からの連続時刻」で24を超えることがある(例: 23時+5時間後=28時)。
 // 表示用には24で折り返した時計表示にする。
 function fmtClock(h){ return fmtHour(((h%24)+24)%24); }
-// 「何時間後を予測」バーの、時間差部分だけの短い表記(例: "現在" / "3時間後")。
-// detail panelのチップ等、他の場所でも同じ言い回しを使うために切り出している。
-function offsetPhrase(offset){
-  if (offset===0) return "現在";
-  const offStr = (Math.round(offset*10)/10).toString();
-  return `${offStr}時間後`;
+// 「期間・時間帯」の短い表記(例: "今日・午後")。detail panelのチップ等でも使う。
+function periodPhrase(){
+  return `${DAYS[state.dayIdx].label}・${SLOTS[state.slotIdx].label}`;
 }
-// 「何時間後を予測」バーのラベル(例: "現在（16:53頃）" / "3時間後（18:15頃）")
-function fmtOffsetLabel(offset){
-  return `${offsetPhrase(offset)}（${fmtClock(state.timeHour)}頃）`;
+// 「期間・時間帯」のラベル(例: "今日・午後（8/28(金) 14:30頃）")。
+// 「夜間」は日をまたぐため、代表時刻(state.timeHour)が実際に指す暦日は選んだ「期間」の
+// 日付と異なることがある(例:「今日・夜間」の代表時刻は翌日未明になる)。そのため表示上の
+// 日付はdayIdxからではなく、timeHourから逆算した実際の日を使う。
+function fmtPeriodLabel(){
+  const actualDayOffset = Math.floor(state.timeHour/24);
+  return `${periodPhrase()}（${formatDayLabel(actualDayOffset)} ${fmtClock(state.timeHour)}頃）`;
 }
 function fmt1(v){ return (Math.round(v*10)/10).toFixed(1); }
 
@@ -3340,10 +3382,13 @@ function uvTier(uv){
 }
 
 // current ambient + elevation + ext/int for one region(都道府県 or 市町村), given global controls
-function computeNow(region){
+// hourOverrideを渡すと、閲覧中の「期間・時間帯」(state.timeHour)ではなく指定した時刻で計算する
+// (通知の安全確認は、閲覧中の期間・時間帯に関わらず常に実時刻で行うために使う)。
+function computeNow(region, hourOverride){
   const color = CAR_COLORS.find(c=>c.id===state.colorId);
   const type = CAR_TYPES.find(t=>t.id===state.typeId);
-  const {ambient, elev, G, cloudPct, humidity} = resolveConditions(region, state.timeHour);
+  const hourFloat = (typeof hourOverride === "number") ? hourOverride : state.timeHour;
+  const {ambient, elev, G, cloudPct, humidity} = resolveConditions(region, hourFloat);
   const ext = surfaceTempBisect(ambient, G, state.wind, color.alpha, cloudPct);
   const dExt = ext - ambient;
   let intEq = ambient + cabinEq(G, type, state.sunshade, dExt);
@@ -3762,7 +3807,7 @@ function renderDetail(){
         <div class="factor"><span class="ic">🚘</span>${type.name}</div>
         <div class="factor"><span class="ic">☁️</span>雲量 ${Math.round(r.cloudPct)}%</div>
         <div class="factor"><span class="ic">💧</span>湿度 ${Math.round(r.humidity)}%</div>
-        <div class="factor"><span class="ic">🕐</span>${offsetPhrase(state.timeOffset)}・${fmtClock(state.timeHour)}時点</div>
+        <div class="factor"><span class="ic">🕐</span>${periodPhrase()}・${fmtClock(state.timeHour)}時点</div>
         ${uvChip}
       </div>
       <div class="advice">${adviceFor(tier, region.name, metric.id)}<br><span style="font-size:12.5px; color:var(--text-faint);">${tierBasisText(tier, metric, metricValue(r))}</span></div>
@@ -4022,7 +4067,9 @@ function checkAlerts(){
   if (!region) return;
   const label = notifyRegionName || region.name;
   const metric = currentMetric();
-  const val = metricValue(computeNow(region));
+  // 通知(安全確認)は、閲覧中の「期間・時間帯」に関わらず常に実際の「今」を評価する。
+  // 明日以降の予報を眺めている間も、今まさに危険域になったことを見逃さないようにするため。
+  const val = metricValue(computeNow(region, nowHourJST()));
   const tier = tierFor(val, metric.thresholds);
   const prev = lastTierByRegion[region.key] || "safe";
   if (tierRank(tier) > tierRank(prev) && (tier==="warning"||tier==="danger")){
@@ -4078,14 +4125,38 @@ buildSeg(document.getElementById("metricSeg"), METRICS, state.metric, id=>{
   saveSettings();
 });
 
-document.getElementById("timeSlider").addEventListener("input", e=>{
-  state.timeOffset = parseFloat(e.target.value);
-  state.timeHour = nowHourJST() + state.timeOffset;
-  updateAll();
+const daySeg = document.getElementById("daySeg");
+DAYS.forEach((d,i)=>{
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.innerHTML = `${d.label}<span class="d">${d.d}</span>`;
+  btn.classList.toggle("active", i===state.dayIdx);
+  btn.addEventListener("click", ()=>{
+    state.dayIdx = i; recalcTimeHour();
+    [...daySeg.children].forEach(c=>c.classList.remove("active"));
+    btn.classList.add("active");
+    updateAll();
+  });
+  daySeg.appendChild(btn);
 });
-// 「何時間後」の基準となる「今」は時間の経過とともに変わるため、バーを操作していなくても
-// 1分おきに実時刻を反映し直す(表示中の予測がいつまでも同じ時刻を指したままにならないように)。
-setInterval(()=>{ state.timeHour = nowHourJST() + state.timeOffset; updateAll(); }, 60*1000);
+const slotSeg = document.getElementById("slotSeg");
+SLOTS.forEach((s,i)=>{
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.innerHTML = `${s.label}<span class="d">${s.d}</span>`;
+  btn.classList.toggle("active", i===state.slotIdx);
+  btn.addEventListener("click", ()=>{
+    state.slotIdx = i; recalcTimeHour();
+    [...slotSeg.children].forEach(c=>c.classList.remove("active"));
+    btn.classList.add("active");
+    updateAll();
+  });
+  slotSeg.appendChild(btn);
+});
+// 「期間・時間帯」は選んだ帯の代表時刻で固定されるため、表示中の推定値は時間の経過だけでは
+// 変わらない。ただし「登録」した地域の安全確認だけは、閲覧中の期間・時間帯に関わらず常に
+// 実時刻で継続的にチェックし続ける必要があるため、1分おきにcheckAlertsだけを呼び直す。
+setInterval(checkAlerts, 60*1000);
 document.getElementById("adjSlider").addEventListener("input", e=>{ state.tempAdjust=parseFloat(e.target.value); updateAll(); });
 document.getElementById("windSlider").addEventListener("input", e=>{ state.wind=parseFloat(e.target.value); state.windTouched=true; updateAll(); });
 document.getElementById("justParkedToggle").addEventListener("change", e=>{ state.justParked=e.target.checked; updateAll(); });
@@ -4160,7 +4231,7 @@ async function fetchLiveWeather(){
   const url = "https://api.open-meteo.com/v1/forecast"
     + `?latitude=${lats}&longitude=${lons}`
     + `&hourly=temperature_2m,relative_humidity_2m,shortwave_radiation,cloud_cover,wind_speed_10m,uv_index`
-    + `&models=jma_seamless&timezone=Asia%2FTokyo&forecast_days=2`;
+    + `&models=jma_seamless&timezone=Asia%2FTokyo&forecast_days=5`;
   try{
     const res = await fetch(url);
     if (!res.ok) throw new Error("HTTP "+res.status);
@@ -4212,7 +4283,7 @@ async function fetchLiveWeather(){
     }
     const skipped = PREFS.length - okCount;
     setWeatherStatus("ok",
-      `${WEATHER_SOURCE_LABEL} から ${okCount}/${PREFS.length} 都道府県の時間帯別(1時間ごと・最大48時間先まで)の気温・日射量・雲量・風速・UV指数を取得しました。`
+      `${WEATHER_SOURCE_LABEL} から ${okCount}/${PREFS.length} 都道府県の時間帯別(1時間ごと・最大3日先まで)の気温・日射量・雲量・風速・UV指数を取得しました。`
       + (skipped>0 ? ` (${skipped}県は取得できず、待機中の目安値を使用しています)` : "")
       + " 数値は今この瞬間の予報であり、通信環境やAPI側の状況により変動・失敗することがあります。"
     );
@@ -4259,7 +4330,7 @@ async function ensureMuniData(prefName, force){
   const url = "https://api.open-meteo.com/v1/forecast"
     + `?latitude=${lats}&longitude=${lons}`
     + `&hourly=temperature_2m,relative_humidity_2m,shortwave_radiation,cloud_cover,uv_index`
-    + `&models=jma_seamless&timezone=Asia%2FTokyo&forecast_days=2`;
+    + `&models=jma_seamless&timezone=Asia%2FTokyo&forecast_days=5`;
   try{
     const res = await fetch(url);
     if (!res.ok) throw new Error("HTTP "+res.status);
@@ -4301,11 +4372,11 @@ function updateAll(){
   // 常に最新のPREFS_HOURLY/MUNI_HOURLYを反映するようにする。
   if (selectedRegion) selectedRegion = regionFromKey(selectedRegion.key) || selectedRegion;
   refreshColorSeg();
-  document.getElementById("timeLabel").textContent = fmtOffsetLabel(state.timeOffset);
+  document.getElementById("timeLabel").textContent = fmtPeriodLabel();
   document.getElementById("adjLabel").textContent = (state.tempAdjust>0?"+":"")+state.tempAdjust+"℃";
   document.getElementById("windLabel").textContent = state.wind+" m/s";
   const now = new Date();
-  document.getElementById("metaTime").textContent = fmtClock(state.timeHour);
+  document.getElementById("metaTime").textContent = `${formatDayLabel(Math.floor(state.timeHour/24))} ${fmtClock(state.timeHour)}`;
   const metric = currentMetric();
   updateMapHeadText();
   renderScaleGuide(metric);
